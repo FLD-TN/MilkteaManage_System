@@ -6,6 +6,7 @@ package com.appsystem.milkteamanage_system.Staff;
 
 import com.appsystem.milkteamanage_system.OrderManage.OrderManage;
 import com.appsystem.milkteamanage_system.Utils.DBConnection;
+import com.appsystem.milkteamanage_system.Staff.BillPanel;
 import java.awt.Color;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -391,7 +392,8 @@ public class StaffHomePage extends javax.swing.JFrame {
 
     private void btnOrderManageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOrderManageActionPerformed
         // TODO add your handling code here:
-            new OrderManage().setVisible(true);
+         
+           
     }//GEN-LAST:event_btnOrderManageActionPerformed
 
     /**
@@ -443,7 +445,7 @@ public class StaffHomePage extends javax.swing.JFrame {
     }
 
     // Kiểm tra các bàn đang có hoá đơn và chuyển màu nút lại.
-    private void checkAndChangeTableButtonBackGround() {
+      private void checkAndChangeTableButtonBackGround() {
         try (Connection conn = DBConnection.getConnection()) {
             String sql = "SELECT TableNumber FROM Orders WHERE OrderType = N'Uống tại quán' AND IsActive = 1";
             PreparedStatement pst = conn.prepareStatement(sql);
@@ -453,7 +455,7 @@ public class StaffHomePage extends javax.swing.JFrame {
                 int table = rs.getInt("TableNumber");
                 JButton btn = tableButtonMap.get(table);
                 if (btn != null) {
-                    btn.setBackground(new Color(144, 238, 144)); // xanh lá
+                    updateTableColor(table, true); // xanh lá
                 }
             }
         } catch (Exception e) {
@@ -462,7 +464,7 @@ public class StaffHomePage extends javax.swing.JFrame {
     }
 
     //hàm check xem bàn có đang có đơn không để tạo đơn 
-    public void CheckAndCreateOrder(int tableNumber, JButton btnBan, int staffId, String staffName, String orderType) {
+     public void CheckAndCreateOrder(int tableNumber, JButton btnBan, int staffId, String staffName, String orderType) {
         try (Connection conn = DBConnection.getConnection()) {
             // Kiểm tra xem bàn này có đơn đang mở không
             String query = "SELECT OrderID,Status,TotalAmount FROM Orders WHERE TableNumber = ? AND OrderType = N'Uống tại quán' AND IsActive = 1";
@@ -475,7 +477,8 @@ public class StaffHomePage extends javax.swing.JFrame {
                 int existOrderID = rs.getInt("OrderID");
                 String orderStatus = rs.getString("Status");
                 double totalAmount = rs.getDouble("TotalAmount");
-                new OrderFrame(existOrderID, tableNumber, staffId, staffName, orderType, orderStatus, totalAmount, btnBan, this).setVisible(true);
+                new OrderFrame(existOrderID, tableNumber, staffId, staffName, orderType, orderStatus, totalAmount,
+                        btnBan, this).setVisible(true);
                 return;
             }
 
@@ -497,20 +500,26 @@ public class StaffHomePage extends javax.swing.JFrame {
                 int newOrderId = generatedKeys.getInt(1);
                 String newOrderStatus = "Chưa thanh toán";
                 double newTotalAmount = 0.0;
-                btnBan.setBackground(new Color(144, 238, 144)); // Xanh lá nhẹ
-                new OrderFrame(newOrderId, tableNumber, staffId, staffName, orderType, newOrderStatus,newTotalAmount, null, this).setVisible(true);
+                updateTableColor(tableNumber, true); // Xanh lá nhẹ
+                new OrderFrame(newOrderId, tableNumber, staffId, staffName, orderType, newOrderStatus, newTotalAmount,
+                        null, this).setVisible(true);
             }
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Lỗi xử lý bàn: " + e.getMessage());
         }
     }
+    
 
-    //hàm reset màu của Button Bàn tại trang staffhomepage
+     public void updateTableColor(int tableNumber, boolean hasActiveOrder) {
+    JButton btn = tableButtonMap.get(tableNumber);
+    if (btn != null) {
+        btn.setBackground(hasActiveOrder ? new Color(144, 238, 144) : null);
+    }
+}
+
     public void resetTableButtonColor(int tableNumber) {
-        if (tableButtonMap.containsKey(tableNumber)) {
-            tableButtonMap.get(tableNumber).setBackground(null);
-        }
+        updateTableColor(tableNumber, false);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

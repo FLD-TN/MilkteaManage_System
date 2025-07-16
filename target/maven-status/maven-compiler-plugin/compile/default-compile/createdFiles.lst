@@ -2,10 +2,13 @@ com\appsystem\milkteamanage_system\OrderManage\OrderManage$1.class
 com\appsystem\milkteamanage_system\Staff\StaffHomePage$4.class
 com\appsystem\milkteamanage_system\UserManage$2.class
 com\appsystem\milkteamanage_system\ProductManager\productmanager.class
+com\appsystem\milkteamanage_system\Staff\OrderFrame$6.class
+com\appsystem\milkteamanage_system\Staff\DiscountPopup.class
 com\appsystem\milkteamanage_system\ProductManager\productmanager$2.class
 com\appsystem\milkteamanage_system\Staff\StaffHomePage$10.class
 com\appsystem\milkteamanage_system\Utils\TableBackGroundRender.class
 ChooseImage.class
+com\appsystem\milkteamanage_system\Staff\BillPanel$1.class
 com\appsystem\milkteamanage_system\Dashboard$3.class
 com\appsystem\milkteamanage_system\Staff\StaffHomePage$1.class
 com\appsystem\milkteamanage_system\Home$2.class
@@ -14,6 +17,7 @@ com\appsystem\milkteamanage_system\Staff\OrderFrame$5.class
 com\appsystem\milkteamanage_system\OrderManage\OrderManage.class
 com\appsystem\milkteamanage_system\Staff\OrderFrame$2.class
 com\appsystem\milkteamanage_system\ProductManager\AddProductPanel$1.class
+com\appsystem\milkteamanage_system\Staff\BillPanel$2.class
 com\appsystem\milkteamanage_system\Staff\StaffHomePage$3.class
 com\appsystem\milkteamanage_system\ProductManager\AddProductPanel.class
 com\appsystem\milkteamanage_system\Staff\StaffHomePage$11.class

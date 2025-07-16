@@ -4,6 +4,15 @@
  */
 package com.appsystem.milkteamanage_system.Staff;
 
+import com.appsystem.milkteamanage_system.Utils.DBConnection;
+import com.appsystem.milkteamanage_system.Utils.FormatCurrency;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.time.format.DateTimeFormatter;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author Admin
@@ -16,6 +25,40 @@ public class BillPanel extends javax.swing.JPanel {
     public BillPanel() {
         initComponents();
     }
+    
+     public BillPanel(int orderId) {
+       this();                
+       loadData(orderId);
+   }
+     private void loadData(int orderId){
+        try(Connection conn=DBConnection.getConnection()){
+            // header
+            String hSql="SELECT o.TableNumber, o.TotalAmount, o.OrderID, s.FullName, o.OrderDate FROM Orders o JOIN Staffs s ON s.StaffID=o.StaffID WHERE o.OrderID=?";
+            PreparedStatement h=conn.prepareStatement(hSql); h.setInt(1,orderId);
+            ResultSet rh=h.executeQuery();
+            if(rh.next()){
+                OrderIDLabel.setText(String.valueOf(rh.getInt("OrderID")));
+                tableNumberLabel.setText(rh.getInt("TableNumber")==0?"—":String.valueOf(rh.getInt("TableNumber")));
+                createdTImeOrderLabel.setText(rh.getTimestamp("OrderDate").toLocalDateTime().format(DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy")));
+                StaffNameLabel.setText(rh.getString("FullName"));
+                TotalPriceLabel.setText(FormatCurrency.formatCurrency(rh.getDouble("TotalAmount"))+" đ");
+            }
+            // detail – replace model to avoid DecimalFormat issue
+            DefaultTableModel model=new DefaultTableModel(new Object[]{"STT","Tên Món","SL","Đơn Giá","Thành Tiền"},0){
+                @Override public boolean isCellEditable(int r,int c){return false;}
+            };
+            String dSql="SELECT p.Name, od.Quantity, od.UnitPrice, od.SubTotal FROM OrderDetails od JOIN Products p ON p.ProductID=od.ProductID WHERE od.OrderID=?";
+            PreparedStatement d=conn.prepareStatement(dSql); d.setInt(1,orderId);
+            ResultSet rd=d.executeQuery(); int stt=1; double sub=0;
+            while(rd.next()){
+                String name=rd.getString(1); int qty=rd.getInt(2); double unit=rd.getDouble(3); double tot=rd.getDouble(4);
+                model.addRow(new Object[]{stt++, name, qty, FormatCurrency.formatCurrency(unit), FormatCurrency.formatCurrency(tot)});
+                sub+=tot;
+            }
+            OrderDetailTable.setModel(model);
+            FinalTotalPriceLabel.setText(FormatCurrency.formatCurrency(sub)+" đ");
+        }catch(Exception ex){ JOptionPane.showMessageDialog(this,"Lỗi load bill: "+ex.getMessage()); }
+    }
         
 
     /**
@@ -27,13 +70,43 @@ public class BillPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jSeparator2 = new javax.swing.JSeparator();
+        jSeparator3 = new javax.swing.JSeparator();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         OrderIDLabel = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         StaffNameLabel = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
+        createdTImeOrderLabel = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        tableNumberLabel = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        OrderDetailTable = new javax.swing.JTable();
+        jLabel8 = new javax.swing.JLabel();
+        TotalPriceLabel = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        FinalTotalPriceLabel = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jSeparator1 = new javax.swing.JSeparator();
+        jSeparator4 = new javax.swing.JSeparator();
         jLabel5 = new javax.swing.JLabel();
+        DiscountLabel = new javax.swing.JLabel();
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(jTable1);
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel1.setText("PHIẾU THANH TOÁN");
@@ -49,56 +122,175 @@ public class BillPanel extends javax.swing.JPanel {
 
         jLabel4.setText("Thời gian :");
 
-        jLabel5.setText("15:30:00 28/12/2005");
+        createdTImeOrderLabel.setText("15:30:00 28/12/2005");
+
+        jLabel6.setText("Số Bàn :");
+
+        tableNumberLabel.setText("1");
+
+        OrderDetailTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "STT", "Tên Món", "SL", "Đơn Giá", "Thành Tiền"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Double.class, java.lang.Double.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane2.setViewportView(OrderDetailTable);
+
+        jLabel8.setText("Thành tiền: ");
+
+        TotalPriceLabel.setText("100,000 đ");
+
+        jLabel10.setText("Tổng tiền: ");
+
+        FinalTotalPriceLabel.setText("100,000 đ");
+
+        jLabel12.setText("Cảm ơn Quý Khách !");
+
+        jLabel5.setText("Khuyến mãi:");
+
+        DiscountLabel.setText("XXXX");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(40, 40, 40)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel3)
-                    .addComponent(jLabel4))
-                .addGap(45, 45, 45)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel4)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addGap(40, 40, 40)
+                                    .addComponent(jLabel3))
+                                .addGroup(layout.createSequentialGroup()
+                                    .addGap(52, 52, 52)
+                                    .addComponent(jLabel2))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                    .addGap(39, 39, 39)
+                                    .addComponent(jLabel6))))
+                        .addGap(45, 45, 45)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(OrderIDLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(createdTImeOrderLabel)
+                            .addComponent(jLabel1)
+                            .addComponent(tableNumberLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(StaffNameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 12, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jSeparator4)))
+                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel5)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jLabel1)
-                        .addComponent(OrderIDLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(StaffNameLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 242, Short.MAX_VALUE)))
-                .addContainerGap(18, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(141, 141, 141)
+                        .addComponent(jLabel12))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(53, 53, 53)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel8)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(61, 61, 61)
+                        .addComponent(jLabel10)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(DiscountLabel)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(TotalPriceLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(FinalTotalPriceLabel, javax.swing.GroupLayout.Alignment.TRAILING)))
+                .addGap(64, 64, 64))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(112, 112, 112)
+                .addGap(59, 59, 59)
                 .addComponent(jLabel1)
-                .addGap(18, 18, 18)
+                .addGap(20, 20, 20)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(OrderIDLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(tableNumberLabel))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(createdTImeOrderLabel))
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(StaffNameLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(32, 32, 32)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(jLabel5))
-                .addContainerGap(332, Short.MAX_VALUE))
+                    .addComponent(TotalPriceLabel)
+                    .addComponent(jLabel8))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(DiscountLabel))
+                .addGap(8, 8, 8)
+                .addComponent(jSeparator4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel10)
+                    .addComponent(FinalTotalPriceLabel))
+                .addGap(23, 23, 23)
+                .addComponent(jLabel12)
+                .addGap(21, 21, 21))
         );
     }// </editor-fold>//GEN-END:initComponents
 
 
+    
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel DiscountLabel;
+    private javax.swing.JLabel FinalTotalPriceLabel;
+    private javax.swing.JTable OrderDetailTable;
     private javax.swing.JLabel OrderIDLabel;
     private javax.swing.JLabel StaffNameLabel;
+    private javax.swing.JLabel TotalPriceLabel;
+    private javax.swing.JLabel createdTImeOrderLabel;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JSeparator jSeparator3;
+    private javax.swing.JSeparator jSeparator4;
+    private javax.swing.JTable jTable1;
+    private javax.swing.JLabel tableNumberLabel;
     // End of variables declaration//GEN-END:variables
 }
