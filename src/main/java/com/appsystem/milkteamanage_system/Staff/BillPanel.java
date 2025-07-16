@@ -19,47 +19,72 @@ import javax.swing.table.DefaultTableModel;
  */
 public class BillPanel extends javax.swing.JPanel {
 
+    private double discountAmount;
+    private String discountCodeName;
+
     /**
      * Creates new form BillPanel
      */
     public BillPanel() {
         initComponents();
     }
-    
-     public BillPanel(int orderId) {
-       this();                
-       loadData(orderId);
-   }
-     private void loadData(int orderId){
-        try(Connection conn=DBConnection.getConnection()){
-            // header
-            String hSql="SELECT o.TableNumber, o.TotalAmount, o.OrderID, s.FullName, o.OrderDate FROM Orders o JOIN Staffs s ON s.StaffID=o.StaffID WHERE o.OrderID=?";
-            PreparedStatement h=conn.prepareStatement(hSql); h.setInt(1,orderId);
-            ResultSet rh=h.executeQuery();
-            if(rh.next()){
+
+    public BillPanel(int orderId, double discountAmount, String discountCodeName) {
+        this();
+        this.discountAmount = discountAmount;
+        this.discountCodeName = discountCodeName;
+        loadData(orderId);
+    }
+
+    private void loadData(int orderId) {
+        try (Connection conn = DBConnection.getConnection()) {
+            // Header
+            String hSql = "SELECT o.TableNumber, o.TotalAmount, o.OrderID, s.FullName, o.OrderDate, o.DiscountID FROM Orders o JOIN Staffs s ON s.StaffID = o.StaffID WHERE o.OrderID = ?";
+            PreparedStatement h = conn.prepareStatement(hSql);
+            h.setInt(1, orderId);
+            ResultSet rh = h.executeQuery();
+            if (rh.next()) {
                 OrderIDLabel.setText(String.valueOf(rh.getInt("OrderID")));
-                tableNumberLabel.setText(rh.getInt("TableNumber")==0?"—":String.valueOf(rh.getInt("TableNumber")));
+                tableNumberLabel.setText(rh.getInt("TableNumber") == 0 ? "—" : String.valueOf(rh.getInt("TableNumber")));
                 createdTImeOrderLabel.setText(rh.getTimestamp("OrderDate").toLocalDateTime().format(DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy")));
                 StaffNameLabel.setText(rh.getString("FullName"));
-                TotalPriceLabel.setText(FormatCurrency.formatCurrency(rh.getDouble("TotalAmount"))+" đ");
+                TotalPriceLabel.setText(FormatCurrency.formatCurrency(rh.getDouble("TotalAmount")) + " đ");
+
+                // Handle discount display
+                if (discountCodeName != null && discountAmount > 0) {
+                    DiscountLabel.setText(discountCodeName + ": -" + FormatCurrency.formatCurrency(discountAmount) + " đ");
+                } else {
+                    DiscountLabel.setText("Không có");
+                }
+
+                double finalTotal = rh.getDouble("TotalAmount") - discountAmount;
+                FinalTotalPriceLabel.setText(FormatCurrency.formatCurrency(finalTotal) + " đ");
             }
-            // detail – replace model to avoid DecimalFormat issue
-            DefaultTableModel model=new DefaultTableModel(new Object[]{"STT","Tên Món","SL","Đơn Giá","Thành Tiền"},0){
-                @Override public boolean isCellEditable(int r,int c){return false;}
+
+            // Detail
+            DefaultTableModel model = new DefaultTableModel(new Object[]{"STT", "Tên Món", "SL", "Đơn Giá", "Thành Tiền"}, 0) {
+                @Override
+                public boolean isCellEditable(int r, int c) {
+                    return false;
+                }
             };
-            String dSql="SELECT p.Name, od.Quantity, od.UnitPrice, od.SubTotal FROM OrderDetails od JOIN Products p ON p.ProductID=od.ProductID WHERE od.OrderID=?";
-            PreparedStatement d=conn.prepareStatement(dSql); d.setInt(1,orderId);
-            ResultSet rd=d.executeQuery(); int stt=1; double sub=0;
-            while(rd.next()){
-                String name=rd.getString(1); int qty=rd.getInt(2); double unit=rd.getDouble(3); double tot=rd.getDouble(4);
+            String dSql = "SELECT p.Name, od.Quantity, od.UnitPrice, od.SubTotal FROM OrderDetails od JOIN Products p ON p.ProductID = od.ProductID WHERE od.OrderID = ?";
+            PreparedStatement d = conn.prepareStatement(dSql);
+            d.setInt(1, orderId);
+            ResultSet rd = d.executeQuery();
+            int stt = 1;
+            while (rd.next()) {
+                String name = rd.getString(1);
+                int qty = rd.getInt(2);
+                double unit = rd.getDouble(3);
+                double tot = rd.getDouble(4);
                 model.addRow(new Object[]{stt++, name, qty, FormatCurrency.formatCurrency(unit), FormatCurrency.formatCurrency(tot)});
-                sub+=tot;
             }
             OrderDetailTable.setModel(model);
-            FinalTotalPriceLabel.setText(FormatCurrency.formatCurrency(sub)+" đ");
-        }catch(Exception ex){ JOptionPane.showMessageDialog(this,"Lỗi load bill: "+ex.getMessage()); }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi load bill: " + ex.getMessage());
+        }
     }
-        
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -265,8 +290,6 @@ public class BillPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
 
-    
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel DiscountLabel;
     private javax.swing.JLabel FinalTotalPriceLabel;

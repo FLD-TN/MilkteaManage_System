@@ -18,19 +18,23 @@ public class DiscountPopup extends JDialog {
     private double finalTotalAmount;
     private Integer appliedDiscountId;
     private boolean paymentProcessed = false;
+    private double discountAmount;
+    private String discountCodeName;
 
     public DiscountPopup(JFrame parent, int orderId, double totalAmount) {
         super(parent, "Áp Dụng Mã Khuyến Mãi", true);
         this.orderId = orderId;
         this.totalAmount = totalAmount;
         this.finalTotalAmount = totalAmount; // Initialize with no discount
+        this.discountAmount = 0.0; // Initialize discount amount
+        this.discountCodeName = null; // Initialize discount code name
         initComponents();
         setLocationRelativeTo(parent);
     }
 
     private void initComponents() {
         setLayout(new BorderLayout(10, 10));
-        setSize(300, 150);
+        setSize(400, 300);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         // Create components
@@ -71,15 +75,17 @@ public class DiscountPopup extends JDialog {
         }
 
         try (Connection conn = DBConnection.getConnection()) {
-            String sql = "SELECT DiscountID, DiscountPercent FROM Discounts WHERE Name = ? AND StartDate <= GETDATE() AND EndDate >= GETDATE()";
+            String sql = "SELECT DiscountID, Name, DiscountPercent FROM Discounts WHERE DiscountID = ? AND StartDate <= GETDATE() AND EndDate >= GETDATE()";
             PreparedStatement pst = conn.prepareStatement(sql);
             pst.setString(1, discountCode);
             ResultSet rs = pst.executeQuery();
 
             if (rs.next()) {
                 appliedDiscountId = rs.getInt("DiscountID");
+                discountCodeName = rs.getString("Name");
                 double discountPercent = rs.getDouble("DiscountPercent");
-                finalTotalAmount = totalAmount - (discountPercent * totalAmount / 100);
+                discountAmount = totalAmount * (discountPercent / 100);
+                finalTotalAmount = totalAmount - discountAmount;
                 processPayment();
             } else {
                 JOptionPane.showMessageDialog(this, "Mã khuyến mãi không hợp lệ hoặc đã hết hạn!");
@@ -91,6 +97,8 @@ public class DiscountPopup extends JDialog {
 
     private void processPaymentWithoutDiscount() {
         appliedDiscountId = null;
+        discountCodeName = null;
+        discountAmount = 0.0;
         finalTotalAmount = totalAmount;
         processPayment();
     }
@@ -142,7 +150,7 @@ public class DiscountPopup extends JDialog {
     }
 
     private void showBillPanel() {
-        BillPanel billPanel = new BillPanel(orderId);
+        BillPanel billPanel = new BillPanel(orderId, discountAmount, discountCodeName);
         JDialog billDialog = new JDialog((JFrame) getOwner(), "Hóa Đơn #" + orderId, true);
         billDialog.getContentPane().add(billPanel);
         billDialog.pack();
@@ -160,6 +168,14 @@ public class DiscountPopup extends JDialog {
 
     public Integer getAppliedDiscountId() {
         return appliedDiscountId;
+    }
+
+    public double getDiscountAmount() {
+        return discountAmount;
+    }
+
+    public String getDiscountCodeName() {
+        return discountCodeName;
     }
 
     public static void main(String[] args) {

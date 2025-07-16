@@ -428,7 +428,6 @@ public class OrderFrame extends javax.swing.JFrame {
     }
 
     private void btnPrintOrderActionPerformed(java.awt.event.ActionEvent evt) {
-        showBillPanel();
     }
 
     private void btnThanhToanActionPerformed(java.awt.event.ActionEvent evt) {
@@ -687,14 +686,7 @@ public class OrderFrame extends javax.swing.JFrame {
         }
     }
 
-    private void showBillPanel() {
-        BillPanel pnl = new BillPanel(orderId);
-        JDialog d = new JDialog((java.awt.Frame) null, "Hóa đơn #" + orderId, true);
-        d.getContentPane().add(pnl);
-        d.pack();
-        d.setLocationRelativeTo(null);
-        d.setVisible(true);
-    }
+ 
 
     private void updateTotalAmountLabel() {
         try (Connection conn = DBConnection.getConnection()) {
