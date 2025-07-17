@@ -25,9 +25,9 @@ public class DiscountPopup extends JDialog {
         super(parent, "Áp Dụng Mã Khuyến Mãi", true);
         this.orderId = orderId;
         this.totalAmount = totalAmount;
-        this.finalTotalAmount = totalAmount; // Initialize with no discount
-        this.discountAmount = 0.0; // Initialize discount amount
-        this.discountCodeName = null; // Initialize discount code name
+        this.finalTotalAmount = totalAmount; 
+        this.discountAmount = 0.0; 
+        this.discountCodeName = null; 
         initComponents();
         setLocationRelativeTo(parent);
     }

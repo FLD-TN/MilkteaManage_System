@@ -48,7 +48,7 @@ public class BillPanel extends javax.swing.JPanel {
                 tableNumberLabel.setText(rh.getInt("TableNumber") == 0 ? "—" : String.valueOf(rh.getInt("TableNumber")));
                 createdTImeOrderLabel.setText(rh.getTimestamp("OrderDate").toLocalDateTime().format(DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy")));
                 StaffNameLabel.setText(rh.getString("FullName"));
-                TotalPriceLabel.setText(FormatCurrency.formatCurrency(rh.getDouble("TotalAmount")) + " đ");
+                TotalPriceLabel.setText(FormatCurrency.formatCurrency(rh.getDouble("TotalAmount")));
 
                 // Handle discount display
                 if (discountCodeName != null && discountAmount > 0) {

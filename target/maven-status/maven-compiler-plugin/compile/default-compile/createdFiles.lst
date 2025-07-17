@@ -14,6 +14,7 @@ com\appsystem\milkteamanage_system\Staff\StaffHomePage$1.class
 com\appsystem\milkteamanage_system\Home$2.class
 com\appsystem\milkteamanage_system\ProductManager\productmanager$5.class
 com\appsystem\milkteamanage_system\Staff\OrderFrame$5.class
+com\appsystem\milkteamanage_system\Statistic\StatisticManager$1.class
 com\appsystem\milkteamanage_system\OrderManage\OrderManage.class
 com\appsystem\milkteamanage_system\Staff\OrderFrame$2.class
 com\appsystem\milkteamanage_system\ProductManager\AddProductPanel$1.class
@@ -27,7 +28,6 @@ com\appsystem\milkteamanage_system\Home$1.class
 com\appsystem\milkteamanage_system\UserManage.class
 com\appsystem\milkteamanage_system\Login$3.class
 com\appsystem\milkteamanage_system\Utils\FormatCurrency.class
-com\appsystem\milkteamanage_system\Dashboard$4.class
 com\appsystem\milkteamanage_system\MilkteaManage_system.class
 com\appsystem\milkteamanage_system\Staff\BillPanel.class
 com\appsystem\milkteamanage_system\Staff\OrderFrame.class
@@ -39,6 +39,7 @@ com\appsystem\milkteamanage_system\Staff\StaffHomePage$12.class
 com\appsystem\milkteamanage_system\ProductManager\productmanager$1.class
 com\appsystem\milkteamanage_system\ProductManager\EditProductPanel.class
 com\appsystem\milkteamanage_system\Staff\AddProductToOrder$2.class
+com\appsystem\milkteamanage_system\Statistic\StatisticManager.class
 com\appsystem\milkteamanage_system\Login$2.class
 com\appsystem\milkteamanage_system\Staff\StaffHomePage.class
 com\appsystem\milkteamanage_system\Login$1.class

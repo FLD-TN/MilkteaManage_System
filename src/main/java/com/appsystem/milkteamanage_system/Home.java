@@ -7,6 +7,7 @@ package com.appsystem.milkteamanage_system;
 import com.appsystem.milkteamanage_system.DiscountManage.DiscountManage;
 import com.appsystem.milkteamanage_system.OrderManage.OrderManage;
 import com.appsystem.milkteamanage_system.ProductManager.productmanager;
+import com.appsystem.milkteamanage_system.Statistic.StatisticManager;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
@@ -20,11 +21,10 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
-
 public class Home extends javax.swing.JFrame {
 
     private JPanel mainContentPanel;
-    private JButton activeButton; 
+    private JButton activeButton;
     private JButton dashboardButton;
     private JButton usersButton;
     private JButton productsButton;
@@ -35,13 +35,12 @@ public class Home extends javax.swing.JFrame {
     private JButton optionsButton;
     private JButton logoutButton;
 
-    
-   public Home() throws IOException {
+    public Home() throws IOException {
         setTitle("Hệ thống quản lí bán trà sữa");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
-        
+
         setLayout(new BorderLayout());
         JPanel rootPanel = new JPanel(new BorderLayout()) {
             @Override
@@ -97,7 +96,7 @@ public class Home extends javax.swing.JFrame {
         mainMenu.setLayout(new BoxLayout(mainMenu, BoxLayout.Y_AXIS));
         mainMenu.setOpaque(false);
         mainMenu.setBorder(new EmptyBorder(20, 0, 20, 0));
-        JLabel mainMenuHeader = new JLabel("MAIN MENU");    
+        JLabel mainMenuHeader = new JLabel("MAIN MENU");
         mainMenuHeader.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainMenuHeader.setFont(new Font("Segoe UI", Font.BOLD, 13));
         mainMenuHeader.setForeground(new Color(255, 255, 255, 179));
@@ -128,17 +127,19 @@ public class Home extends javax.swing.JFrame {
         });
         mainMenu.add(ordersButton);
         mainMenu.add(createSeparator());
-        statsButton = createNavButton("Thống Kê", "chart-icon.png", e -> setActiveButton(statsButton));
+        statsButton = createNavButton("Thống Kê", "chart-icon.png", e -> {
+            showStatisticManage();
+            setActiveButton(statsButton);
+        });
         mainMenu.add(statsButton);
-        
+
         mainMenu.add(createSeparator());
         discountButton = createNavButton("Quản Lí Khuyến Mãi", "receipt-icon.png", e -> {
             showDiscountManage();
             setActiveButton(discountButton);
         });
         mainMenu.add(discountButton);
-        
-       
+
         JPanel additionalMenu = new JPanel();
         additionalMenu.setLayout(new BoxLayout(additionalMenu, BoxLayout.Y_AXIS));
         additionalMenu.setOpaque(false);
@@ -156,7 +157,7 @@ public class Home extends javax.swing.JFrame {
         optionsButton = createNavButton("Tuỳ Chọn Khác...", "ellipsis-icon.png", e -> setActiveButton(optionsButton));
         additionalMenu.add(optionsButton);
         additionalMenu.add(createSeparator());
-        logoutButton = createNavButton("Đăng Xuất", "logout-icon.png", e ->{ 
+        logoutButton = createNavButton("Đăng Xuất", "logout-icon.png", e -> {
             setActiveButton(logoutButton);
             this.dispose();
         });
@@ -193,7 +194,7 @@ public class Home extends javax.swing.JFrame {
         Image resizedImage = originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
         return new ImageIcon(resizedImage);
     }
-    
+
     private ImageIcon createEmojiIcon(String emoji, int width, int height) {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = image.createGraphics();
@@ -206,15 +207,15 @@ public class Home extends javax.swing.JFrame {
         g2d.dispose();
         return new ImageIcon(image);
     }
-    
+
     private ImageIcon createDefaultIcon(int width, int height) {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = image.createGraphics();
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setColor(new Color(255, 255, 255, 100));
-        g2d.fillRoundRect(2, 2, width-4, height-4, 4, 4);
+        g2d.fillRoundRect(2, 2, width - 4, height - 4, 4, 4);
         g2d.setColor(new Color(255, 255, 255, 150));
-        g2d.drawRoundRect(2, 2, width-4, height-4, 4, 4);
+        g2d.drawRoundRect(2, 2, width - 4, height - 4, 4, 4);
         g2d.dispose();
         return new ImageIcon(image);
     }
@@ -246,7 +247,7 @@ public class Home extends javax.swing.JFrame {
         button.setContentAreaFilled(false);
         button.setBorder(new EmptyBorder(10, 15, 10, 15));
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
-        button.setFocusPainted(false);   
+        button.setFocusPainted(false);
         button.setMaximumSize(new Dimension(280, 40));
         button.setPreferredSize(new Dimension(280, 40));
         button.setIcon(new ImageIcon(iconPath));
@@ -305,7 +306,7 @@ public class Home extends javax.swing.JFrame {
         mainContentPanel.revalidate();
         mainContentPanel.repaint();
     }
-    
+
     private void showDiscountManage() {
         mainContentPanel.removeAll();
         DiscountManage discountManagePanel = new DiscountManage();
@@ -313,7 +314,14 @@ public class Home extends javax.swing.JFrame {
         mainContentPanel.revalidate();
         mainContentPanel.repaint();
     }
-    
+
+    private void showStatisticManage() {
+        mainContentPanel.removeAll();
+        StatisticManager statisticManagePanel = new StatisticManager();
+        mainContentPanel.add(statisticManagePanel, BorderLayout.CENTER);
+        mainContentPanel.revalidate();
+        mainContentPanel.repaint();
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -340,9 +348,7 @@ public class Home extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-   
-   
-     public static void main(String[] args) {
+    public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel("com.formdev.flatlaf.FlatLightLaf"); // Optional: modern look
         } catch (Exception e) {
@@ -358,8 +364,8 @@ public class Home extends javax.swing.JFrame {
             home.setVisible(true);
         });
 
-       productmanager pr = new productmanager();
-       pr.setVisible(true);
+        productmanager pr = new productmanager();
+        pr.setVisible(true);
 
     }
 }

@@ -3,19 +3,30 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
 package com.appsystem.milkteamanage_system;
+
+import com.appsystem.milkteamanage_system.Utils.DBConnection;
 import com.appsystem.milkteamanage_system.Utils.TableBackGroundRender;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
 
 public class Dashboard extends javax.swing.JPanel {
 
     /**
      * Creates new form Dashboard
      */
-     public Dashboard() {
+    public Dashboard() {
         setLayout(new BorderLayout());
 
         // Main panel with a light gradient background
@@ -61,6 +72,7 @@ public class Dashboard extends javax.swing.JPanel {
                     searchField.setForeground(Color.BLACK);
                 }
             }
+
             @Override
             public void focusLost(java.awt.event.FocusEvent evt) {
                 if (searchField.getText().isEmpty()) {
@@ -92,27 +104,40 @@ public class Dashboard extends javax.swing.JPanel {
         statsPanel.add(visitorsCard);
 
         // Charts section
-        JPanel chartsPanel = new JPanel(new BorderLayout());
+        JPanel chartsPanel = new JPanel(new GridLayout(1, 3, 10, 0));
         chartsPanel.setOpaque(false);
         chartsPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-        chartsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 220));
-        JPanel chartPlaceholder = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-                GradientPaint gp = new GradientPaint(0, 0, Color.WHITE, 0, getHeight(), new Color(245, 245, 245));
-                g2d.setPaint(gp);
-                g2d.fillRect(0, 0, getWidth(), getHeight());
-            }
-        };
-        chartPlaceholder.setBorder(new LineBorder(new Color(200, 200, 200), 1));
-        JLabel chartsLabel = new JLabel("Charts Section (Placeholder)", SwingConstants.CENTER);
-        chartsLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        chartsLabel.setForeground(new Color(50, 50, 50));
-        chartPlaceholder.add(chartsLabel);
-        chartsPanel.add(chartPlaceholder, BorderLayout.CENTER);
+        chartsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
+
+        // Doanh thu theo tháng
+        DefaultCategoryDataset revenueDataset = createRevenueDataset();
+        JFreeChart revenueChart = ChartFactory.createBarChart(
+                "Doanh Thu Theo Tháng", "Tháng", "Doanh Thu (VND)",
+                revenueDataset, PlotOrientation.VERTICAL, true, true, false
+        );
+        ChartPanel revenueChartPanel = new ChartPanel(revenueChart);
+        revenueChartPanel.setPreferredSize(new Dimension(300, 300));
+        chartsPanel.add(revenueChartPanel);
+
+        // Sản phẩm bán chạy
+        DefaultCategoryDataset topProductsDataset = createTopProductsDataset();
+        JFreeChart topProductsChart = ChartFactory.createBarChart(
+                "Top 5 Sản Phẩm Bán Chạy", "Sản Phẩm", "Số Lượng",
+                topProductsDataset, PlotOrientation.VERTICAL, true, true, false
+        );
+        ChartPanel topProductsChartPanel = new ChartPanel(topProductsChart);
+        topProductsChartPanel.setPreferredSize(new Dimension(300, 300));
+        chartsPanel.add(topProductsChartPanel);
+
+        // Số lượng đơn hàng theo ngày
+        DefaultCategoryDataset ordersDataset = createOrdersDataset();
+        JFreeChart ordersChart = ChartFactory.createLineChart(
+                "Đơn Hàng Theo Ngày", "Ngày", "Số Lượng",
+                ordersDataset, PlotOrientation.VERTICAL, true, true, false
+        );
+        ChartPanel ordersChartPanel = new ChartPanel(ordersChart);
+        ordersChartPanel.setPreferredSize(new Dimension(300, 300));
+        chartsPanel.add(ordersChartPanel);
 
         // Recent Orders Table
         JPanel tablePanel = new JPanel(new BorderLayout());
@@ -152,13 +177,70 @@ public class Dashboard extends javax.swing.JPanel {
         contentPanel.add(Box.createVerticalStrut(10));
         contentPanel.add(tablePanel);
 
-        // Thêm contentPanel vào mainPanel
-        mainPanel.add(contentPanel, BorderLayout.CENTER);
+        // Bọc contentPanel trong JScrollPane để có thể cuộn dọc
+        JScrollPane scrollPane = new JScrollPane(contentPanel);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16); // Tốc độ cuộn mượt mà hơn
+
+        // Thêm scrollPane vào mainPanel thay vì contentPanel trực tiếp
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+
         add(mainPanel);
     }
 
+    private DefaultCategoryDataset createRevenueDataset() {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = "SELECT MONTH(OrderDate) AS Month, SUM(TotalAmount) AS Revenue "
+                    + "FROM Orders WHERE YEAR(OrderDate) = YEAR(GETDATE()) GROUP BY MONTH(OrderDate)";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+                dataset.addValue(rs.getDouble("Revenue"), "Doanh Thu", "Tháng " + rs.getInt("Month"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dataset;
+    }
+
+    private DefaultCategoryDataset createTopProductsDataset() {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = "SELECT TOP 5 p.Name, SUM(od.Quantity) AS TotalSold "
+                    + "FROM OrderDetails od JOIN Products p ON od.ProductID = p.ProductID "
+                    + "GROUP BY p.Name ORDER BY TotalSold DESC";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+                dataset.addValue(rs.getInt("TotalSold"), "Số Lượng", rs.getString("Name"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dataset;
+    }
+
+    private DefaultCategoryDataset createOrdersDataset() {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = "SELECT DAY(OrderDate) AS Day, COUNT(*) AS OrderCount "
+                    + "FROM Orders WHERE MONTH(OrderDate) = MONTH(GETDATE()) AND YEAR(OrderDate) = YEAR(GETDATE()) "
+                    + "GROUP BY DAY(OrderDate)";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+                dataset.addValue(rs.getInt("OrderCount"), "Đơn Hàng", "Ngày " + rs.getInt("Day"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dataset;
+    }
+
     private JPanel createStatsCard(String title, String value, String subtitle, String iconPath,
-                                  Color gradientStart, Color gradientEnd) {
+            Color gradientStart, Color gradientEnd) {
         JPanel card = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -206,6 +288,7 @@ public class Dashboard extends javax.swing.JPanel {
         return card;
     }
 
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -227,7 +310,7 @@ public class Dashboard extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-public static void main(String[] args) {
+    public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel("com.formdev.flatlaf.FlatLightLaf");
         } catch (Exception e) {
