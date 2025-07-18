@@ -6,11 +6,24 @@ package com.appsystem.milkteamanage_system.Staff;
 
 import com.appsystem.milkteamanage_system.Utils.DBConnection;
 import com.appsystem.milkteamanage_system.Utils.FormatCurrency;
+import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.TextAlignment;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.format.DateTimeFormatter;
-import javax.swing.JOptionPane;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -21,6 +34,7 @@ public class BillPanel extends javax.swing.JPanel {
 
     private double discountAmount;
     private String discountCodeName;
+    private int orderID;
 
     /**
      * Creates new form BillPanel
@@ -31,6 +45,7 @@ public class BillPanel extends javax.swing.JPanel {
 
     public BillPanel(int orderId, double discountAmount, String discountCodeName) {
         this();
+        this.orderID = orderId;
         this.discountAmount = discountAmount;
         this.discountCodeName = discountCodeName;
         loadData(orderId);
@@ -86,6 +101,105 @@ public class BillPanel extends javax.swing.JPanel {
         }
     }
 
+    private void exportToPDF() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Lưu Hóa Đơn PDF");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("PDF Files", "pdf"));
+        fileChooser.setSelectedFile(new File("HoaDon_" + OrderIDLabel.getText() + ".pdf"));
+
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        File fileToSave = fileChooser.getSelectedFile();
+        String filePath = fileToSave.getAbsolutePath();
+        if (!filePath.toLowerCase().endsWith(".pdf")) {
+            filePath += ".pdf";
+        }
+
+        try (Connection conn = DBConnection.getConnection()) {
+            PdfWriter writer = new PdfWriter(new FileOutputStream(filePath));
+            PdfDocument pdf = new PdfDocument(writer);
+            Document document = new Document(pdf);
+
+            // Load font DejaVu Sans
+            PdfFont font;
+            try {
+                font = PdfFontFactory.createFont("src/main/Resources/fonts/DejaVuSans.ttf", "Identity-H", PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy font DejaVuSans.ttf: " + e.getMessage());
+                font = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+            }
+
+            // Tiêu đề
+            document.add(new Paragraph("PHIẾU THANH TOÁN")
+                    .setFont(font)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setFontSize(16)
+                    .setBold());
+            document.add(new Paragraph("Mã HĐ: " + OrderIDLabel.getText())
+                    .setFont(font)
+                    .setFontSize(12));
+            document.add(new Paragraph("Số Bàn: " + tableNumberLabel.getText())
+                    .setFont(font)
+                    .setFontSize(12));
+            document.add(new Paragraph("Thời gian: " + createdTImeOrderLabel.getText())
+                    .setFont(font)
+                    .setFontSize(12));
+            document.add(new Paragraph("Thu ngân: " + StaffNameLabel.getText())
+                    .setFont(font)
+                    .setFontSize(12));
+            document.add(new Paragraph("\n"));
+
+            // Bảng chi tiết hóa đơn
+            float[] columnWidths = {50, 200, 50, 100, 100};
+            Table table = new Table(columnWidths);
+            table.addHeaderCell(new Paragraph("STT").setFont(font));
+            table.addHeaderCell(new Paragraph("Tên Món").setFont(font));
+            table.addHeaderCell(new Paragraph("SL").setFont(font));
+            table.addHeaderCell(new Paragraph("Đơn Giá").setFont(font));
+            table.addHeaderCell(new Paragraph("Thành Tiền").setFont(font));
+
+            String dSql = "SELECT p.Name, od.Quantity, od.UnitPrice, od.SubTotal FROM OrderDetails od JOIN Products p ON p.ProductID = od.ProductID WHERE od.OrderID = ?";
+            PreparedStatement d = conn.prepareStatement(dSql);
+            d.setInt(1, orderID);
+            ResultSet rd = d.executeQuery();
+            int stt = 1;
+            while (rd.next()) {
+                table.addCell(new Paragraph(String.valueOf(stt++)).setFont(font));
+                table.addCell(new Paragraph(rd.getString("Name")).setFont(font));
+                table.addCell(new Paragraph(String.valueOf(rd.getInt("Quantity"))).setFont(font));
+                table.addCell(new Paragraph(FormatCurrency.formatCurrency(rd.getDouble("UnitPrice"))).setFont(font));
+                table.addCell(new Paragraph(FormatCurrency.formatCurrency(rd.getDouble("SubTotal"))).setFont(font));
+            }
+            document.add(table);
+
+            // Thông tin tổng kết
+            document.add(new Paragraph("\n"));
+            document.add(new Paragraph("Thành tiền: " + TotalPriceLabel.getText())
+                    .setFont(font)
+                    .setFontSize(12));
+            document.add(new Paragraph("Khuyến mãi: " + DiscountLabel.getText())
+                    .setFont(font)
+                    .setFontSize(12));
+            document.add(new Paragraph("Tổng tiền: " + FinalTotalPriceLabel.getText())
+                    .setFont(font)
+                    .setFontSize(12)
+                    .setBold());
+            document.add(new Paragraph("\n"));
+            document.add(new Paragraph("Cảm ơn Quý Khách!")
+                    .setFont(font)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setFontSize(12));
+
+            document.close();
+            JOptionPane.showMessageDialog(this, "Hóa đơn đã được xuất thành công tại: " + filePath);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi xuất PDF: " + ex.getMessage());
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -119,6 +233,8 @@ public class BillPanel extends javax.swing.JPanel {
         jSeparator4 = new javax.swing.JSeparator();
         jLabel5 = new javax.swing.JLabel();
         DiscountLabel = new javax.swing.JLabel();
+        printIntoPDFbtn = new javax.swing.JButton();
+        btnClose = new javax.swing.JButton();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -188,6 +304,20 @@ public class BillPanel extends javax.swing.JPanel {
 
         DiscountLabel.setText("XXXX");
 
+        printIntoPDFbtn.setText("Xuất pdf");
+        printIntoPDFbtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                printIntoPDFbtnActionPerformed(evt);
+            }
+        });
+
+        btnClose.setText("Đóng");
+        btnClose.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCloseActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -218,12 +348,11 @@ public class BillPanel extends javax.swing.JPanel {
                         .addGap(0, 12, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jSeparator4)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addComponent(jSeparator4, javax.swing.GroupLayout.Alignment.TRAILING))))
                 .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(141, 141, 141)
@@ -243,6 +372,12 @@ public class BillPanel extends javax.swing.JPanel {
                         .addComponent(TotalPriceLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                         .addComponent(FinalTotalPriceLabel, javax.swing.GroupLayout.Alignment.TRAILING)))
                 .addGap(64, 64, 64))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(84, 84, 84)
+                .addComponent(printIntoPDFbtn)
+                .addGap(40, 40, 40)
+                .addComponent(btnClose)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -285,9 +420,23 @@ public class BillPanel extends javax.swing.JPanel {
                     .addComponent(FinalTotalPriceLabel))
                 .addGap(23, 23, 23)
                 .addComponent(jLabel12)
-                .addGap(21, 21, 21))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(printIntoPDFbtn)
+                    .addComponent(btnClose))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void printIntoPDFbtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_printIntoPDFbtnActionPerformed
+        // TODO add your handling code here:
+        exportToPDF();
+    }//GEN-LAST:event_printIntoPDFbtnActionPerformed
+
+    private void btnCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCloseActionPerformed
+        // TODO add your handling code here:
+
+    }//GEN-LAST:event_btnCloseActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -297,6 +446,7 @@ public class BillPanel extends javax.swing.JPanel {
     private javax.swing.JLabel OrderIDLabel;
     private javax.swing.JLabel StaffNameLabel;
     private javax.swing.JLabel TotalPriceLabel;
+    private javax.swing.JButton btnClose;
     private javax.swing.JLabel createdTImeOrderLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -314,6 +464,7 @@ public class BillPanel extends javax.swing.JPanel {
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
     private javax.swing.JTable jTable1;
+    private javax.swing.JButton printIntoPDFbtn;
     private javax.swing.JLabel tableNumberLabel;
     // End of variables declaration//GEN-END:variables
 }

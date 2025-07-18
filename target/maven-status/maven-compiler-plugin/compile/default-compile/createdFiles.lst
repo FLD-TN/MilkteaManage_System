@@ -31,6 +31,7 @@ com\appsystem\milkteamanage_system\Utils\FormatCurrency.class
 com\appsystem\milkteamanage_system\MilkteaManage_system.class
 com\appsystem\milkteamanage_system\Staff\BillPanel.class
 com\appsystem\milkteamanage_system\Staff\OrderFrame.class
+com\appsystem\milkteamanage_system\Staff\BillPanel$3.class
 com\appsystem\milkteamanage_system\Staff\OrderFrame$1.class
 com\appsystem\milkteamanage_system\Staff\AddProductToOrder.class
 com\appsystem\milkteamanage_system\Dashboard$1.class
@@ -55,6 +56,7 @@ com\appsystem\milkteamanage_system\UserManage$3.class
 com\appsystem\milkteamanage_system\Dashboard$2.class
 com\appsystem\milkteamanage_system\Staff\StaffHomePage$13.class
 com\appsystem\milkteamanage_system\Staff\StaffHomePage$5.class
+com\appsystem\milkteamanage_system\Staff\BillPanel$4.class
 com\appsystem\milkteamanage_system\Dashboard.class
 com\appsystem\milkteamanage_system\DiscountManage\DiscountManage.class
 com\appsystem\milkteamanage_system\Staff\StaffHomePage$8.class
