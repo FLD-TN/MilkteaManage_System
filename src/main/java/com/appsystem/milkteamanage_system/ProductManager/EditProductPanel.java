@@ -1,6 +1,7 @@
 package com.appsystem.milkteamanage_system.ProductManager;
 
 import com.appsystem.milkteamanage_system.Utils.DBConnection;
+import com.appsystem.milkteamanage_system.Utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,27 +19,34 @@ public class EditProductPanel extends JPanel {
     private JComboBox<String> cbStatus;
     private JButton btnBrowse, btnSave, btnCancel;
     private int productId;
+    private JLabel productPicturePreview;
 
-    public EditProductPanel(int id, String name, String desc, Double price, String status,Timestamp createdDate, String imgPath, Runnable onSaveCallback) {
+    public EditProductPanel(int id, String name, String desc, Double price, String status, Timestamp createdDate, String imgPath, Runnable onSaveCallback) {
         this.productId = id;
 
         setLayout(new GridLayout(8, 2, 10, 10));
+        setPreferredSize(new Dimension(850, 450)); // Đồng bộ kích thước với AddProductPanel
 
         lblId = new JLabel(String.valueOf(id));
         tfName = new JTextField(name);
         tfPrice = new JTextField(Double.toString(price));
         tfDesc = new JTextField(desc);
         tfImgPath = new JTextField(imgPath);
+        tfImgPath.setPreferredSize(new Dimension(280, 35)); 
         cbStatus = new JComboBox<>(new String[]{"Còn Bán", "Ngừng Bán"});
         cbStatus.setSelectedItem(status != null ? status : "Còn Bán");
+        productPicturePreview = new JLabel();
+        Utils.updateAvatarPreview(productPicturePreview, imgPath); // Hiển thị ảnh mặc định khi khởi tạo
 
         btnBrowse = new JButton("Chọn ảnh");
         btnBrowse.addActionListener(e -> chooseImage());
 
         btnSave = new JButton("Lưu");
+        btnSave.setBackground (new java.awt.Color(102,255,102));
         btnSave.addActionListener((ActionEvent evt) -> saveProduct(onSaveCallback));
 
         btnCancel = new JButton("Hủy");
+        btnCancel.setBackground(Color.GRAY);
         btnCancel.addActionListener(e -> SwingUtilities.getWindowAncestor(this).dispose());
 
         add(new JLabel("ID:"));
@@ -52,9 +60,11 @@ public class EditProductPanel extends JPanel {
         add(new JLabel("Trạng thái:"));
         add(cbStatus);
         add(new JLabel("Đường dẫn ảnh:"));
-        add(tfImgPath);
-        add(new JLabel(""));
-        add(btnBrowse);
+        JPanel imgPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        imgPanel.add(productPicturePreview);
+        imgPanel.add(tfImgPath);
+        imgPanel.add(btnBrowse);
+        add(imgPanel);
         add(btnSave);
         add(btnCancel);
     }
@@ -65,6 +75,8 @@ public class EditProductPanel extends JPanel {
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             File selectedFile = chooser.getSelectedFile();
             tfImgPath.setText(selectedFile.getAbsolutePath());
+            String path = tfImgPath.getText().trim();
+            Utils.updateAvatarPreview(productPicturePreview, path);
         }
     }
 
@@ -83,7 +95,7 @@ public class EditProductPanel extends JPanel {
         double price;
         try {
             price = Double.parseDouble(priceText);
-            if (price < 0) {
+            if (price <= 0) {
                 JOptionPane.showMessageDialog(this, "Giá phải lớn hơn 0!");
                 return;
             }
@@ -94,7 +106,6 @@ public class EditProductPanel extends JPanel {
 
         String sql = "UPDATE Products SET Name = ?, Description = ?, Price = ?, Status = ?, ImgPath = ? WHERE ProductID = ?";
         try (Connection conn = DBConnection.getConnection(); PreparedStatement pst = conn.prepareStatement(sql)) {
-
             pst.setString(1, name);
             pst.setString(2, desc);
             pst.setDouble(3, price);
@@ -106,7 +117,6 @@ public class EditProductPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Cập nhật sản phẩm thành công!");
             onSaveCallback.run();
             SwingUtilities.getWindowAncestor(this).dispose();
-
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Lỗi cập nhật: " + e.getMessage());
         }

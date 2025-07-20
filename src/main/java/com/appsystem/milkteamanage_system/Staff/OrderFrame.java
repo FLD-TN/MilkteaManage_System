@@ -1,7 +1,7 @@
 package com.appsystem.milkteamanage_system.Staff;
 
 import com.appsystem.milkteamanage_system.Utils.DBConnection;
-import com.appsystem.milkteamanage_system.Utils.FormatCurrency;
+import com.appsystem.milkteamanage_system.Utils.Utils;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -78,8 +78,8 @@ public class OrderFrame extends javax.swing.JFrame {
         }
         orderTypeLabel.setText(orderType);
         OrderStatusLabel.setText(orderStatus);
-        TotalAmountLabel.setText(FormatCurrency.formatCurrency(totalAmount));
-        FinalTotalAmountLabel.setText(FormatCurrency.formatCurrency(totalAmount));
+        TotalAmountLabel.setText(Utils.formatCurrency(totalAmount));
+        FinalTotalAmountLabel.setText(Utils.formatCurrency(totalAmount));
         loadOrderDetails();
     }
 
@@ -436,8 +436,8 @@ public class OrderFrame extends javax.swing.JFrame {
         if (popup.isPaymentProcessed()) {
             this.finalTotalAmount = popup.getFinalTotalAmount();
             this.appliedDiscountId = popup.getAppliedDiscountId();
-            TotalAmountLabel.setText(FormatCurrency.formatCurrency(totalAmount));
-            FinalTotalAmountLabel.setText(FormatCurrency.formatCurrency(finalTotalAmount));
+            TotalAmountLabel.setText(Utils.formatCurrency(totalAmount));
+            FinalTotalAmountLabel.setText(Utils.formatCurrency(finalTotalAmount));
             if (parent != null) {
                 parent.updateTableColor(tableNumber, false);
             }
@@ -601,8 +601,8 @@ public class OrderFrame extends javax.swing.JFrame {
         btnDel.addActionListener(e -> deleteItem(detailId));
         ctl.add(btnDel);
 
-        JLabel lblPrice = new JLabel("Đơn giá: " + FormatCurrency.formatCurrency(unitPrice)
-                + "   |   Tổng: " + FormatCurrency.formatCurrency(subtotal));
+        JLabel lblPrice = new JLabel("Đơn giá: " + Utils.formatCurrency(unitPrice)
+                + "   |   Tổng: " + Utils.formatCurrency(subtotal));
         lblPrice.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblPrice.setForeground(new Color(70, 70, 70));
 
@@ -679,9 +679,9 @@ public class OrderFrame extends javax.swing.JFrame {
             ResultSet rs = totalPst.executeQuery();
             if (rs.next()) {
                 totalAmount = rs.getDouble("TotalAmount");
-                TotalAmountLabel.setText(FormatCurrency.formatCurrency(totalAmount));
+                TotalAmountLabel.setText(Utils.formatCurrency(totalAmount));
                 finalTotalAmount = totalAmount; // Update finalTotalAmount
-                FinalTotalAmountLabel.setText(FormatCurrency.formatCurrency(finalTotalAmount));
+                FinalTotalAmountLabel.setText(Utils.formatCurrency(finalTotalAmount));
             }
         }
     }
@@ -696,9 +696,9 @@ public class OrderFrame extends javax.swing.JFrame {
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
                 totalAmount = rs.getDouble("total");
-                TotalAmountLabel.setText(FormatCurrency.formatCurrency(totalAmount));
+                TotalAmountLabel.setText(Utils.formatCurrency(totalAmount));
                 finalTotalAmount = totalAmount;
-                FinalTotalAmountLabel.setText(FormatCurrency.formatCurrency(finalTotalAmount));
+                FinalTotalAmountLabel.setText(Utils.formatCurrency(finalTotalAmount));
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Lỗi tính tổng tiền: " + e.getMessage());

@@ -14,6 +14,8 @@ import com.appsystem.milkteamanage_system.Utils.DBConnection;
 import java.sql.Timestamp;
 import javax.swing.JDialog;
 import com.appsystem.milkteamanage_system.ProductManager.AddProductPanel;
+import com.appsystem.milkteamanage_system.Utils.Utils;
+import java.awt.Color;
 import java.awt.Dialog;
 import javax.swing.SwingUtilities;
 
@@ -22,50 +24,23 @@ public class productmanager extends javax.swing.JPanel {
     public productmanager() {
         initComponents();
         loadDataFromDatabase();
-
+        tableproduct.getColumnModel().getColumn(0).setCellRenderer(new Utils.ImageRender());
+        tableproduct.setShowGrid(true);
+        tableproduct.setGridColor(Color.BLACK);
     }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        btnXoa = new javax.swing.JButton();
-        btnAdd = new javax.swing.JButton();
-        btnedit = new javax.swing.JButton();
         btnload = new javax.swing.JButton();
+        btnAdd = new javax.swing.JButton();
+        btnEdit = new javax.swing.JButton();
+        btnDelete = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jScrollPane1 = new javax.swing.JScrollPane();
         tableproduct = new javax.swing.JTable();
 
         setPreferredSize(new java.awt.Dimension(900, 700));
-
-        btnXoa.setBackground(new java.awt.Color(255, 51, 0));
-        btnXoa.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnXoa.setText("Xóa");
-        btnXoa.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnXoaActionPerformed(evt);
-            }
-        });
-
-        btnAdd.setBackground(new java.awt.Color(102, 255, 0));
-        btnAdd.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnAdd.setForeground(new java.awt.Color(51, 0, 51));
-        btnAdd.setText("Thêm");
-        btnAdd.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAddActionPerformed(evt);
-            }
-        });
-
-        btnedit.setBackground(new java.awt.Color(255, 255, 0));
-        btnedit.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnedit.setText("Sửa");
-        btnedit.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btneditActionPerformed(evt);
-            }
-        });
 
         btnload.setText("Load Data");
         btnload.addActionListener(new java.awt.event.ActionListener() {
@@ -74,9 +49,31 @@ public class productmanager extends javax.swing.JPanel {
             }
         });
 
-        tableproduct.setBackground(new java.awt.Color(70, 130, 180));
-        tableproduct.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        tableproduct.setForeground(new java.awt.Color(51, 51, 51));
+        btnAdd.setBackground(new java.awt.Color(102, 255, 102));
+        btnAdd.setText("Thêm Sản Phẩm");
+        btnAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddActionPerformed(evt);
+            }
+        });
+
+        btnEdit.setBackground(new java.awt.Color(255, 204, 51));
+        btnEdit.setText("Sửa Sản Phẩm");
+        btnEdit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditActionPerformed(evt);
+            }
+        });
+
+        btnDelete.setBackground(new java.awt.Color(255, 51, 51));
+        btnDelete.setText("Xoá Sản Phẩm");
+        btnDelete.setToolTipText("");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
+
         tableproduct.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null},
@@ -88,118 +85,78 @@ public class productmanager extends javax.swing.JPanel {
                 {null, null, null, null, null, null, null}
             },
             new String [] {
-                "ID", "Name", "Description", "Price", "Status", "CreatedDate", "ImgPath"
+                "Hình Ảnh", "Mã SP", "Tên", "Mô Tả", "Giá", "Trạng Thái", "Ngày Tạo"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Double.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
+                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Double.class, java.lang.Object.class, java.lang.Object.class
             };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
         });
-        tableproduct.setToolTipText("");
-        tableproduct.setPreferredSize(new java.awt.Dimension(900, 140));
-        jScrollPane1.setViewportView(tableproduct);
-
-        jScrollPane2.setViewportView(jScrollPane1);
+        tableproduct.setRowHeight(100);
+        jScrollPane2.setViewportView(tableproduct);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnload, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(130, 130, 130)
-                        .addComponent(btnedit, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(135, 135, 135)
-                .addComponent(btnXoa, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(431, 431, 431))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1463, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(62, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 888, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnload, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(28, 28, 28)
+                        .addComponent(btnAdd)
+                        .addGap(28, 28, 28)
+                        .addComponent(btnEdit)
+                        .addGap(28, 28, 28)
+                        .addComponent(btnDelete)
+                        .addGap(18, 18, 18)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 470, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(26, 26, 26)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 461, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(34, 34, 34)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnXoa, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnedit, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 84, Short.MAX_VALUE)
-                .addComponent(btnload)
-                .addGap(44, 44, 44))
+                    .addComponent(btnDelete)
+                    .addComponent(btnEdit)
+                    .addComponent(btnAdd)
+                    .addComponent(btnload))
+                .addContainerGap(178, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
-
-
-    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
-
-        JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Thêm sản phẩm", Dialog.ModalityType.APPLICATION_MODAL);
-        AddProductPanel addPanel = new AddProductPanel();
-
-        // Khi đóng panel, reload lại table
-        dialog.setContentPane(addPanel);
-        dialog.pack();
-        dialog.setLocationRelativeTo(this);
-        dialog.setVisible(true);
-
-        // Sau khi thêm xong, load lại dữ liệu
-        loadDataFromDatabase();
-
-    }//GEN-LAST:event_btnAddActionPerformed
 
 
     private void btnloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnloadActionPerformed
         loadDataFromDatabase();
     }//GEN-LAST:event_btnloadActionPerformed
 
-    private void btnXoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnXoaActionPerformed
-        int selectedRow = tableproduct.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Chọn dòng cần xóa!");
-            return;
-        }
-        int id = (int) tableproduct.getValueAt(selectedRow, 0);
-
-        String sql = "DELETE FROM Products WHERE ProductID = ?";
-        try (Connection conn = DBConnection.getConnection(); PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setInt(1, id);
-            pst.executeUpdate();
-            JOptionPane.showMessageDialog(this, "Xóa thành công!");
-            loadDataFromDatabase();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage());
-        }
-    }//GEN-LAST:event_btnXoaActionPerformed
-
-    private void btneditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btneditActionPerformed
+    private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
+        // TODO add your handling code here:
         int row = tableproduct.getSelectedRow();
         if (row < 0) {
             JOptionPane.showMessageDialog(this, "Chọn sản phẩm để sửa");
             return;
         }
         // Lấy ID
-        Object idObj = tableproduct.getValueAt(row, 0);
+        Object idObj = tableproduct.getValueAt(row, 1);
         int id = idObj instanceof Number
                 ? ((Number) idObj).intValue()
                 : Integer.parseInt(idObj.toString());
 
         // Lấy Name, Description an toàn
-        String name = tableproduct.getValueAt(row, 1).toString();
-        String desc = tableproduct.getValueAt(row, 2).toString();
+        String name = tableproduct.getValueAt(row, 2).toString();
+        String desc = tableproduct.getValueAt(row, 3).toString();
 
         // Lấy Price an toàn
-        Object priceObj = tableproduct.getValueAt(row, 3);
+        Object priceObj = tableproduct.getValueAt(row, 4);
         double price;
 
         if (priceObj instanceof Number) {
@@ -209,9 +166,9 @@ public class productmanager extends javax.swing.JPanel {
         }
 
         // Lấy Status, ImgPath
-        String status = tableproduct.getValueAt(row, 4).toString();
-        Timestamp createdDate = (Timestamp) tableproduct.getValueAt(row, 5);
-        String img = tableproduct.getValueAt(row, 6).toString();
+        String status = tableproduct.getValueAt(row, 5).toString();
+        Timestamp createdDate = (Timestamp) tableproduct.getValueAt(row, 6);
+        String img = tableproduct.getValueAt(row, 0).toString();
 
         // Gọi popup sửa
         EditProductPanel.showEditDialog(
@@ -225,22 +182,61 @@ public class productmanager extends javax.swing.JPanel {
                 img,
                 () -> loadDataFromDatabase()
         );
-    }//GEN-LAST:event_btneditActionPerformed
+    }//GEN-LAST:event_btnEditActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        // TODO add your handling code here:
+        int selectedRow = tableproduct.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Chọn dòng cần xóa!");
+            return;
+        }
+        int id = (int) tableproduct.getValueAt(selectedRow, 1);
+
+        String sql = "DELETE FROM Products WHERE ProductID = ?";
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement pst = conn.prepareStatement(sql)) {
+            pst.setInt(1, id);
+            pst.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Xóa thành công!");
+            loadDataFromDatabase();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        // TODO add your handling code here:
+        JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Thêm sản phẩm", Dialog.ModalityType.APPLICATION_MODAL);
+        AddProductPanel addPanel = new AddProductPanel();
+
+        // Khi đóng panel, reload lại table
+        dialog.setContentPane(addPanel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+
+        // Sau khi thêm xong, load lại dữ liệu
+        loadDataFromDatabase();
+
+    }//GEN-LAST:event_btnAddActionPerformed
     private void loadDataFromDatabase() {
         String sql = "SELECT ProductID, Name, Description, Price, Status, CreatedDate, ImgPath FROM Products";
         try (Connection conn = DBConnection.getConnection(); PreparedStatement pst = conn.prepareStatement(sql); ResultSet rs = pst.executeQuery()) {
-
             DefaultTableModel model = (DefaultTableModel) tableproduct.getModel();
             model.setRowCount(0);
             while (rs.next()) {
+                String imgPath = rs.getString("ImgPath");
+                if (imgPath == null || imgPath.trim().isEmpty()) {
+                    imgPath = "src/main/Resources/images/default-product.png"; // Ảnh mặc định nếu không có
+                }
                 model.addRow(new Object[]{
+                    imgPath,
                     rs.getInt("ProductID"),
                     rs.getString("Name"),
                     rs.getString("Description"),
                     rs.getDouble("Price"),
                     rs.getString("Status"),
-                    rs.getTimestamp("CreatedDate"),
-                    rs.getString("ImgPath")
+                    rs.getTimestamp("CreatedDate")
                 });
             }
         } catch (SQLException e) {
@@ -250,10 +246,9 @@ public class productmanager extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
-    private javax.swing.JButton btnXoa;
-    private javax.swing.JButton btnedit;
+    private javax.swing.JButton btnDelete;
+    private javax.swing.JButton btnEdit;
     private javax.swing.JButton btnload;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable tableproduct;
     // End of variables declaration//GEN-END:variables

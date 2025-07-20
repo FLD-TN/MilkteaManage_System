@@ -5,7 +5,7 @@
 package com.appsystem.milkteamanage_system.Staff;
 
 import com.appsystem.milkteamanage_system.Utils.DBConnection;
-import com.appsystem.milkteamanage_system.Utils.FormatCurrency;
+import com.appsystem.milkteamanage_system.Utils.Utils;
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
@@ -48,156 +48,39 @@ public class BillPanel extends javax.swing.JPanel {
         this.orderID = orderId;
         this.discountAmount = discountAmount;
         this.discountCodeName = discountCodeName;
-        loadData(orderId);
+        Utils.loadBillData(orderId, this, discountAmount, discountCodeName);
     }
 
-    private void loadData(int orderId) {
-        try (Connection conn = DBConnection.getConnection()) {
-            // Header
-            String hSql = "SELECT o.TableNumber, o.TotalAmount, o.OrderID, s.FullName, o.OrderDate, o.DiscountID FROM Orders o JOIN Staffs s ON s.StaffID = o.StaffID WHERE o.OrderID = ?";
-            PreparedStatement h = conn.prepareStatement(hSql);
-            h.setInt(1, orderId);
-            ResultSet rh = h.executeQuery();
-            if (rh.next()) {
-                OrderIDLabel.setText(String.valueOf(rh.getInt("OrderID")));
-                tableNumberLabel.setText(rh.getInt("TableNumber") == 0 ? "—" : String.valueOf(rh.getInt("TableNumber")));
-                createdTImeOrderLabel.setText(rh.getTimestamp("OrderDate").toLocalDateTime().format(DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy")));
-                StaffNameLabel.setText(rh.getString("FullName"));
-                TotalPriceLabel.setText(FormatCurrency.formatCurrency(rh.getDouble("TotalAmount")));
-
-                // Handle discount display
-                if (discountCodeName != null && discountAmount > 0) {
-                    DiscountLabel.setText(discountCodeName + ": -" + FormatCurrency.formatCurrency(discountAmount) + " đ");
-                } else {
-                    DiscountLabel.setText("Không có");
-                }
-
-                double finalTotal = rh.getDouble("TotalAmount") - discountAmount;
-                FinalTotalPriceLabel.setText(FormatCurrency.formatCurrency(finalTotal) + " đ");
-            }
-
-            // Detail
-            DefaultTableModel model = new DefaultTableModel(new Object[]{"STT", "Tên Món", "SL", "Đơn Giá", "Thành Tiền"}, 0) {
-                @Override
-                public boolean isCellEditable(int r, int c) {
-                    return false;
-                }
-            };
-            String dSql = "SELECT p.Name, od.Quantity, od.UnitPrice, od.SubTotal FROM OrderDetails od JOIN Products p ON p.ProductID = od.ProductID WHERE od.OrderID = ?";
-            PreparedStatement d = conn.prepareStatement(dSql);
-            d.setInt(1, orderId);
-            ResultSet rd = d.executeQuery();
-            int stt = 1;
-            while (rd.next()) {
-                String name = rd.getString(1);
-                int qty = rd.getInt(2);
-                double unit = rd.getDouble(3);
-                double tot = rd.getDouble(4);
-                model.addRow(new Object[]{stt++, name, qty, FormatCurrency.formatCurrency(unit), FormatCurrency.formatCurrency(tot)});
-            }
-            OrderDetailTable.setModel(model);
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi load bill: " + ex.getMessage());
-        }
+    public void setOrderID(String orderId) {
+        OrderIDLabel.setText(orderId);
     }
 
-    private void exportToPDF() {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Lưu Hóa Đơn PDF");
-        fileChooser.setFileFilter(new FileNameExtensionFilter("PDF Files", "pdf"));
-        fileChooser.setSelectedFile(new File("HoaDon_" + OrderIDLabel.getText() + ".pdf"));
+    public void setTableNumber(String tableNumber) {
+        tableNumberLabel.setText(tableNumber);
+    }
 
-        int userSelection = fileChooser.showSaveDialog(this);
-        if (userSelection != JFileChooser.APPROVE_OPTION) {
-            return;
-        }
+    public void setCreatedTime(String time) {
+        createdTImeOrderLabel.setText(time);
+    }
 
-        File fileToSave = fileChooser.getSelectedFile();
-        String filePath = fileToSave.getAbsolutePath();
-        if (!filePath.toLowerCase().endsWith(".pdf")) {
-            filePath += ".pdf";
-        }
+    public void setStaffName(String staffName) {
+        StaffNameLabel.setText(staffName);
+    }
 
-        try (Connection conn = DBConnection.getConnection()) {
-            PdfWriter writer = new PdfWriter(new FileOutputStream(filePath));
-            PdfDocument pdf = new PdfDocument(writer);
-            Document document = new Document(pdf);
+    public void setTotalPrice(String totalPrice) {
+        TotalPriceLabel.setText(totalPrice);
+    }
 
-            // Load font DejaVu Sans
-            PdfFont font;
-            try {
-                font = PdfFontFactory.createFont("src/main/Resources/fonts/DejaVuSans.ttf", "Identity-H", PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(this, "Không tìm thấy font DejaVuSans.ttf: " + e.getMessage());
-                font = PdfFontFactory.createFont(StandardFonts.HELVETICA);
-            }
+    public void setDiscount(String discount) {
+        DiscountLabel.setText(discount);
+    }
 
-            // Tiêu đề
-            document.add(new Paragraph("PHIẾU THANH TOÁN")
-                    .setFont(font)
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setFontSize(16)
-                    .setBold());
-            document.add(new Paragraph("Mã HĐ: " + OrderIDLabel.getText())
-                    .setFont(font)
-                    .setFontSize(12));
-            document.add(new Paragraph("Số Bàn: " + tableNumberLabel.getText())
-                    .setFont(font)
-                    .setFontSize(12));
-            document.add(new Paragraph("Thời gian: " + createdTImeOrderLabel.getText())
-                    .setFont(font)
-                    .setFontSize(12));
-            document.add(new Paragraph("Thu ngân: " + StaffNameLabel.getText())
-                    .setFont(font)
-                    .setFontSize(12));
-            document.add(new Paragraph("\n"));
+    public void setFinalTotalPrice(String finalTotal) {
+        FinalTotalPriceLabel.setText(finalTotal);
+    }
 
-            // Bảng chi tiết hóa đơn
-            float[] columnWidths = {50, 200, 50, 100, 100};
-            Table table = new Table(columnWidths);
-            table.addHeaderCell(new Paragraph("STT").setFont(font));
-            table.addHeaderCell(new Paragraph("Tên Món").setFont(font));
-            table.addHeaderCell(new Paragraph("SL").setFont(font));
-            table.addHeaderCell(new Paragraph("Đơn Giá").setFont(font));
-            table.addHeaderCell(new Paragraph("Thành Tiền").setFont(font));
-
-            String dSql = "SELECT p.Name, od.Quantity, od.UnitPrice, od.SubTotal FROM OrderDetails od JOIN Products p ON p.ProductID = od.ProductID WHERE od.OrderID = ?";
-            PreparedStatement d = conn.prepareStatement(dSql);
-            d.setInt(1, orderID);
-            ResultSet rd = d.executeQuery();
-            int stt = 1;
-            while (rd.next()) {
-                table.addCell(new Paragraph(String.valueOf(stt++)).setFont(font));
-                table.addCell(new Paragraph(rd.getString("Name")).setFont(font));
-                table.addCell(new Paragraph(String.valueOf(rd.getInt("Quantity"))).setFont(font));
-                table.addCell(new Paragraph(FormatCurrency.formatCurrency(rd.getDouble("UnitPrice"))).setFont(font));
-                table.addCell(new Paragraph(FormatCurrency.formatCurrency(rd.getDouble("SubTotal"))).setFont(font));
-            }
-            document.add(table);
-
-            // Thông tin tổng kết
-            document.add(new Paragraph("\n"));
-            document.add(new Paragraph("Thành tiền: " + TotalPriceLabel.getText())
-                    .setFont(font)
-                    .setFontSize(12));
-            document.add(new Paragraph("Khuyến mãi: " + DiscountLabel.getText())
-                    .setFont(font)
-                    .setFontSize(12));
-            document.add(new Paragraph("Tổng tiền: " + FinalTotalPriceLabel.getText())
-                    .setFont(font)
-                    .setFontSize(12)
-                    .setBold());
-            document.add(new Paragraph("\n"));
-            document.add(new Paragraph("Cảm ơn Quý Khách!")
-                    .setFont(font)
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setFontSize(12));
-
-            document.close();
-            JOptionPane.showMessageDialog(this, "Hóa đơn đã được xuất thành công tại: " + filePath);
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi xuất PDF: " + ex.getMessage());
-        }
+    public void setOrderDetailTable(DefaultTableModel model) {
+        OrderDetailTable.setModel(model);
     }
 
     /**
@@ -430,11 +313,12 @@ public class BillPanel extends javax.swing.JPanel {
 
     private void printIntoPDFbtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_printIntoPDFbtnActionPerformed
         // TODO add your handling code here:
-        exportToPDF();
+        Utils.promptAndExportBillToPDF(orderID, this);
     }//GEN-LAST:event_printIntoPDFbtnActionPerformed
 
     private void btnCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCloseActionPerformed
         // TODO add your handling code here:
+        javax.swing.SwingUtilities.getWindowAncestor(this).dispose();
 
     }//GEN-LAST:event_btnCloseActionPerformed
 

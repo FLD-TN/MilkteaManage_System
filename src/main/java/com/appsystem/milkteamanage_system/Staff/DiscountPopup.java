@@ -1,7 +1,7 @@
 package com.appsystem.milkteamanage_system.Staff;
 
 import com.appsystem.milkteamanage_system.Utils.DBConnection;
-import com.appsystem.milkteamanage_system.Utils.FormatCurrency;
+import com.appsystem.milkteamanage_system.Utils.Utils;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.Connection;
@@ -104,7 +104,7 @@ public class DiscountPopup extends JDialog {
     }
 
     private void processPayment() {
-        if (JOptionPane.showConfirmDialog(this, "Xác nhận thanh toán hóa đơn #" + orderId + " với số tiền: " + FormatCurrency.formatCurrency(finalTotalAmount) + "?", 
+        if (JOptionPane.showConfirmDialog(this, "Xác nhận thanh toán hóa đơn #" + orderId + " với số tiền: " + Utils.formatCurrency(finalTotalAmount) + "?", 
                 "Xác Nhận Thanh Toán", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
             return;
         }

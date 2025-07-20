@@ -2,9 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package com.appsystem.milkteamanage_system;
+package com.appsystem.milkteamanage_system.AdminPage;
 
+import com.appsystem.milkteamanage_system.UserManage.UserManage;
 import com.appsystem.milkteamanage_system.DiscountManage.DiscountManage;
+import com.appsystem.milkteamanage_system.Login;
 import com.appsystem.milkteamanage_system.OrderManage.OrderManage;
 import com.appsystem.milkteamanage_system.ProductManager.productmanager;
 import com.appsystem.milkteamanage_system.Statistic.StatisticManager;
@@ -160,6 +162,8 @@ public class Home extends javax.swing.JFrame {
         logoutButton = createNavButton("Đăng Xuất", "logout-icon.png", e -> {
             setActiveButton(logoutButton);
             this.dispose();
+            Login lg = new Login();
+            lg.setVisible(true);
         });
         additionalMenu.add(logoutButton);
 

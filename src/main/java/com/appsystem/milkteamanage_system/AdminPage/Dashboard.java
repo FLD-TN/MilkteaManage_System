@@ -2,10 +2,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
-package com.appsystem.milkteamanage_system;
+package com.appsystem.milkteamanage_system.AdminPage;
 
 import com.appsystem.milkteamanage_system.Utils.DBConnection;
-import com.appsystem.milkteamanage_system.Utils.TableBackGroundRender;
+import com.appsystem.milkteamanage_system.Utils.Utils;
 import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -91,15 +91,15 @@ public class Dashboard extends javax.swing.JPanel {
         statsPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         statsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
 
-        JPanel stockCard = createStatsCard("Stock Total", "2000$", "Increased by 60%", "src/main/resources/images/box-icon.png",
+        JPanel stockCard = createStatsCard("Tổng Lời", "2000$", "Tăng 60%", "src/main/resources/images/box-icon.png",
                 new Color(135, 206, 250), new Color(70, 130, 180));
         statsPanel.add(stockCard);
 
-        JPanel profitCard = createStatsCard("Total Profit", "1500$", "Increased by 25%", "src/main/resources/images/dollar-icon.png",
+        JPanel profitCard = createStatsCard("Lợi Nhuận", "1500$", "Tăng 25%", "src/main/resources/images/dollar-icon.png",
                 new Color(144, 238, 144), new Color(34, 139, 34));
         statsPanel.add(profitCard);
 
-        JPanel visitorsCard = createStatsCard("Unique Visitors", "30000$", "Increased by 70%", "src/main/resources/images/users-icon.png",
+        JPanel visitorsCard = createStatsCard("Lượng đơn hàng", "30051", "Tăng 70%", "src/main/resources/images/users-icon.png",
                 new Color(255, 218, 185), new Color(255, 140, 0));
         statsPanel.add(visitorsCard);
 
@@ -149,7 +149,7 @@ public class Dashboard extends javax.swing.JPanel {
         tableTitle.setForeground(new Color(30, 30, 30));
         tablePanel.add(tableTitle, BorderLayout.NORTH);
 
-        String[] columnNames = {"Name", "Email", "User Type", "Joined", "Status"};
+        String[] columnNames = {"OrderID", "StaffID", "DiscountID", "TotalAmount", "TableNumber"};
         DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
         JTable userTable = new JTable(tableModel);
         userTable.setFillsViewportHeight(true);
@@ -158,7 +158,7 @@ public class Dashboard extends javax.swing.JPanel {
         userTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
         userTable.getTableHeader().setBackground(new Color(70, 130, 180));
         userTable.getTableHeader().setForeground(Color.WHITE);
-        userTable.setDefaultRenderer(Object.class, new TableBackGroundRender());
+        userTable.setDefaultRenderer(Object.class, new Utils.TableBackGroundRender());
         userTable.setOpaque(true);
         userTable.setBackground(new Color(70, 130, 180));
         JScrollPane tableScrollPane = new JScrollPane(userTable);

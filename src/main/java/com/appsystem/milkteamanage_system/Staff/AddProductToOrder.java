@@ -5,7 +5,7 @@
 package com.appsystem.milkteamanage_system.Staff;
 
 import com.appsystem.milkteamanage_system.Utils.DBConnection;
-import com.appsystem.milkteamanage_system.Utils.FormatCurrency;
+import com.appsystem.milkteamanage_system.Utils.Utils;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import javax.swing.JOptionPane;
@@ -37,7 +37,7 @@ public class AddProductToOrder extends javax.swing.JPanel {
         this.onSuccess = onSuccess;
 
         txtProductName.setText(productName);
-        txtProductPrice.setText(FormatCurrency.formatCurrency(unitPrice));
+        txtProductPrice.setText(Utils.formatCurrency(unitPrice));
         jSpinner1.addChangeListener(e -> updateTotal());
         updateTotal();
 
@@ -213,7 +213,7 @@ public class AddProductToOrder extends javax.swing.JPanel {
     private void updateTotal() {
         int quantity = (int) jSpinner1.getValue();
         double total = unitPrice * quantity;
-        jLabel6.setText(FormatCurrency.formatCurrency(total));
+        jLabel6.setText(Utils.formatCurrency(total));
     }
 
 
