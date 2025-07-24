@@ -121,7 +121,9 @@ public class Login extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(null, "Đăng nhập thành công!");
 
                     if ("admin".equalsIgnoreCase(role)) {
-                        Home home = new Home();
+                        int staffId = rs.getInt("StaffID");
+                        String staffName = rs.getString("FullName");
+                        Home home = new Home(staffName, staffId);
                         home.setVisible(true);
                     } else if ("staff".equalsIgnoreCase(role)) {
                         int staffId = rs.getInt("StaffID");

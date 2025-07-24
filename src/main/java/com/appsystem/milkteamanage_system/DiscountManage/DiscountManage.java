@@ -6,6 +6,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.Vector;
 
 public class DiscountManage extends JPanel {
@@ -107,6 +108,8 @@ public class DiscountManage extends JPanel {
                 loadDiscountsFromDatabase();
             } catch (SQLException e) {
                 JOptionPane.showMessageDialog(this, "Lỗi khi thêm: " + e.getMessage());
+            } catch (IllegalArgumentException e) {
+                 JOptionPane.showMessageDialog(this, "Lỗi định dạng ngày. Vui lòng sử dụng YYYY-MM-DD.");
             }
 
         }
@@ -122,8 +125,13 @@ public class DiscountManage extends JPanel {
         String name = (String) model.getValueAt(row, 1);
         String desc = (String) model.getValueAt(row, 2);
         String percent = model.getValueAt(row, 3).toString();
-        String start = model.getValueAt(row, 4).toString();
-        String end = model.getValueAt(row, 5).toString();
+        
+        // FIX: Convert Timestamp from table to a "yyyy-MM-dd" string
+        Timestamp startTimestamp = (Timestamp) model.getValueAt(row, 4);
+        Timestamp endTimestamp = (Timestamp) model.getValueAt(row, 5);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String start = sdf.format(startTimestamp);
+        String end = sdf.format(endTimestamp);
 
         JTextField nameField = new JTextField(name);
         JTextField descField = new JTextField(desc);
@@ -160,6 +168,8 @@ public class DiscountManage extends JPanel {
                 loadDiscountsFromDatabase();
             } catch (SQLException e) {
                 JOptionPane.showMessageDialog(this, "Lỗi khi sửa: " + e.getMessage());
+            } catch (IllegalArgumentException e) {
+                 JOptionPane.showMessageDialog(this, "Lỗi định dạng ngày. Vui lòng sử dụng YYYY-MM-DD.");
             }
         }
     }

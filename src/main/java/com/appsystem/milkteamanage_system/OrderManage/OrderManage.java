@@ -4,6 +4,7 @@
  */
 package com.appsystem.milkteamanage_system.OrderManage;
 
+import com.appsystem.milkteamanage_system.Staff.OrderFrame;
 import com.appsystem.milkteamanage_system.Utils.DBConnection;
 import com.appsystem.milkteamanage_system.Utils.Utils;
 import java.awt.Color;
@@ -221,7 +222,7 @@ public class OrderManage extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTable OrderManageTable;
+    public javax.swing.JTable OrderManageTable;
     private javax.swing.JButton btnExportToPDF;
     private javax.swing.JButton btnPrintOrder;
     private javax.swing.JScrollPane jScrollPane1;

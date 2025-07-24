@@ -44,6 +44,20 @@ import javax.swing.table.DefaultTableModel;
  */
 public class Utils {
 
+    public static boolean isValidEmail(String email) {
+        String regex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        return email.matches(regex);
+    }
+
+    public static boolean isValidPhoneNumber(String phone) {
+        return phone.matches("^0\\d{9,10}$");
+    }
+
+    public static boolean isValidPassword(String password) {
+        String regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!#$%&])[A-Za-z\\d!#$%&]{6,20}$";
+        return password.matches(regex);
+    }
+
     //load ảnh lên table
     static public class ImageRender extends DefaultTableCellRenderer {
 
@@ -113,7 +127,6 @@ public class Utils {
             setOpaque(true);
 
             if (hasFocus) {
-                // Orange border for focused cells
                 setBorder(BorderFactory.createLineBorder(SELECTED_ROW_COLOR, 1));
             } else {
                 setBorder(null);
@@ -191,7 +204,7 @@ public class Utils {
 
     // Phương thức hiển thị BillPanel như frame xem trước
     public static void displayBillPanel(int orderId, double discountAmount, String discountCodeName, Component parent) {
-        BillPanel billPanel = new BillPanel(orderId, discountAmount, discountCodeName); // Sử dụng constructor có tham số
+        BillPanel billPanel = new BillPanel(orderId, discountAmount, discountCodeName, 0.0, 0.0);
         loadBillData(orderId, billPanel, discountAmount, discountCodeName);
         JDialog billDialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(parent), "Hóa Đơn #" + orderId, true);
         billDialog.getContentPane().add(billPanel);

@@ -10,6 +10,8 @@ import com.appsystem.milkteamanage_system.Login;
 import com.appsystem.milkteamanage_system.OrderManage.OrderManage;
 import com.appsystem.milkteamanage_system.ProductManager.productmanager;
 import com.appsystem.milkteamanage_system.Statistic.StatisticManager;
+import com.appsystem.milkteamanage_system.UserInfomation.UserInfomationPage;
+import com.appsystem.milkteamanage_system.Utils.Utils;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
@@ -33,11 +35,15 @@ public class Home extends javax.swing.JFrame {
     private JButton ordersButton;
     private JButton discountButton;
     private JButton statsButton;
-    private JButton testButton;
+    private JButton userInfomationButton;
     private JButton optionsButton;
     private JButton logoutButton;
+    private String staffName;
+    private int staffID;
 
-    public Home() throws IOException {
+    public Home(String staffName, int staffID) throws IOException {
+        this.staffName = staffName;
+        this.staffID = staffID;
         setTitle("Hệ thống quản lí bán trà sữa");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -71,7 +77,7 @@ public class Home extends javax.swing.JFrame {
         sidebar.setPreferredSize(new Dimension(280, getHeight()));
         sidebar.setBorder(new EmptyBorder(0, 0, 0, 0));
 
-        JPanel logoContainer = new JPanel(new BorderLayout(15, 0)) {
+        JPanel logoContainer = new JPanel(new BorderLayout(0, 0)) {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -81,84 +87,75 @@ public class Home extends javax.swing.JFrame {
             }
         };
         logoContainer.setOpaque(false);
-        logoContainer.setBorder(new EmptyBorder(5, 10, 5, 10));
+        logoContainer.setBorder(new EmptyBorder(15, 10, 15, 10));
         logoContainer.setPreferredSize(new Dimension(280, 200));
         logoContainer.setMaximumSize(new Dimension(280, 200));
+
         JLabel logoImage = new JLabel();
-        logoImage.setIcon(loadAndResizeIcon("src/main/Resources/images/milk-tea.png", 30, 30));
         logoImage.setHorizontalAlignment(SwingConstants.CENTER);
         logoImage.setOpaque(false);
-        JLabel logoLabel = new JLabel("Chào bạn, Admin");
-        logoLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        Utils.updateAvatarPreview(logoImage, "src/main/Resources/images/milk-tea.png");
+
+        JLabel logoLabel = new JLabel("Chào bạn, " + staffName);
+        logoLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         logoLabel.setForeground(Color.WHITE);
-        logoContainer.add(logoImage, BorderLayout.WEST);
-        logoContainer.add(logoLabel, BorderLayout.CENTER);
+        logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        logoContainer.add(logoImage, BorderLayout.CENTER);
+        logoContainer.add(logoLabel, BorderLayout.SOUTH);
 
         JPanel mainMenu = new JPanel();
-        mainMenu.setLayout(new BoxLayout(mainMenu, BoxLayout.Y_AXIS));
+        mainMenu.setLayout(new GridLayout(0, 1, 0, 10));
         mainMenu.setOpaque(false);
-        mainMenu.setBorder(new EmptyBorder(20, 0, 20, 0));
-        JLabel mainMenuHeader = new JLabel("MAIN MENU");
-        mainMenuHeader.setAlignmentX(Component.CENTER_ALIGNMENT);
-        mainMenuHeader.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        mainMenuHeader.setForeground(new Color(255, 255, 255, 179));
-        mainMenu.add(mainMenuHeader);
-        mainMenu.add(Box.createVerticalStrut(10));
+        mainMenu.setBorder(new EmptyBorder(20, 15, 20, 15));
 
         dashboardButton = createNavButton("Dashboard", "🏠", e -> {
             showDashboard();
             setActiveButton(dashboardButton);
         });
         mainMenu.add(dashboardButton);
-        mainMenu.add(createSeparator());
-        usersButton = createNavButton("Quản Lí Nhân Viên", "user-icon.png", e -> {
+
+        usersButton = createNavButton("Quản Lí Nhân Viên", "👥", e -> {
             showUsersManage();
             setActiveButton(usersButton);
         });
         mainMenu.add(usersButton);
-        mainMenu.add(createSeparator());
-        productsButton = createNavButton("Quản Lí Hàng Hoá", "mug-icon.png", e -> {
+
+        productsButton = createNavButton("Quản Lí Hàng Hoá", "📦", e -> {
             showProductsManage();
             setActiveButton(productsButton);
         });
         mainMenu.add(productsButton);
-        mainMenu.add(createSeparator());
-        ordersButton = createNavButton("Quản Lí Đơn Hàng", "receipt-icon.png", e -> {
+
+        ordersButton = createNavButton("Quản Lí Đơn Hàng", "📝", e -> {
             showOrdersManage();
             setActiveButton(ordersButton);
         });
         mainMenu.add(ordersButton);
-        mainMenu.add(createSeparator());
-        statsButton = createNavButton("Thống Kê", "chart-icon.png", e -> {
-            showStatisticManage();
-            setActiveButton(statsButton);
-        });
-        mainMenu.add(statsButton);
 
-        mainMenu.add(createSeparator());
-        discountButton = createNavButton("Quản Lí Khuyến Mãi", "receipt-icon.png", e -> {
+        discountButton = createNavButton("Quản Lí Khuyến Mãi", "🎁️", e -> {
             showDiscountManage();
             setActiveButton(discountButton);
         });
         mainMenu.add(discountButton);
 
+        statsButton = createNavButton("Thống Kê", "📈", e -> {
+            showStatisticManage();
+            setActiveButton(statsButton);
+        });
+        mainMenu.add(statsButton);
+
         JPanel additionalMenu = new JPanel();
         additionalMenu.setLayout(new BoxLayout(additionalMenu, BoxLayout.Y_AXIS));
         additionalMenu.setOpaque(false);
-        additionalMenu.setBorder(new EmptyBorder(20, 10, 20, 10));
-        JLabel additionalMenuHeader = new JLabel("MY DATA");
-        additionalMenuHeader.setAlignmentX(Component.CENTER_ALIGNMENT);
-        additionalMenuHeader.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        additionalMenuHeader.setForeground(new Color(255, 255, 255, 179));
-        additionalMenuHeader.setBorder(new EmptyBorder(10, 15, 5, 15));
-        additionalMenu.add(additionalMenuHeader);
-        additionalMenu.add(Box.createVerticalStrut(5));
-        testButton = createNavButton("TEST", "plus-icon.png", e -> setActiveButton(testButton));
-        additionalMenu.add(testButton);
-        additionalMenu.add(createSeparator());
-        optionsButton = createNavButton("Tuỳ Chọn Khác...", "ellipsis-icon.png", e -> setActiveButton(optionsButton));
-        additionalMenu.add(optionsButton);
-        additionalMenu.add(createSeparator());
+        additionalMenu.setBorder(new EmptyBorder(20, 15, 20, 15));
+
+        userInfomationButton = createNavButton("Thông Tin Cá Nhân", "plus-icon.png", e -> {
+            new UserInfomationPage(staffID, staffName).setVisible(true);
+            setActiveButton(userInfomationButton);
+        });
+        additionalMenu.add(userInfomationButton);
+        additionalMenu.add(Box.createVerticalStrut(10));
+
         logoutButton = createNavButton("Đăng Xuất", "logout-icon.png", e -> {
             setActiveButton(logoutButton);
             this.dispose();
@@ -169,6 +166,7 @@ public class Home extends javax.swing.JFrame {
 
         sidebar.add(logoContainer);
         sidebar.add(mainMenu);
+        sidebar.add(Box.createVerticalGlue());
         sidebar.add(additionalMenu);
 
         mainContentPanel = new JPanel(new BorderLayout());
@@ -181,94 +179,56 @@ public class Home extends javax.swing.JFrame {
         setActiveButton(dashboardButton);
     }
 
-    private ImageIcon loadAndResizeIcon(String iconPath, int width, int height) throws IOException {
-        if (iconPath.length() <= 2 && Character.isHighSurrogate(iconPath.charAt(0))) {
-            return createEmojiIcon(iconPath, width, height);
-        }
-        File iconFile = new File(iconPath);
-        if (!iconFile.exists()) {
-            System.out.println("Icon file not found: " + iconPath);
-            return createDefaultIcon(width, height);
-        }
-        BufferedImage originalImage = ImageIO.read(iconFile);
-        if (originalImage == null) {
-            System.out.println("Could not read image: " + iconPath);
-            return createDefaultIcon(width, height);
-        }
-        Image resizedImage = originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-        return new ImageIcon(resizedImage);
-    }
-
-    private ImageIcon createEmojiIcon(String emoji, int width, int height) {
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = image.createGraphics();
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.setFont(new Font("Segoe UI Emoji", Font.PLAIN, width - 8));
-        FontMetrics fm = g2d.getFontMetrics();
-        int x = (width - fm.stringWidth(emoji)) / 2;
-        int y = ((height - fm.getHeight()) / 2) + fm.getAscent();
-        g2d.drawString(emoji, x, y);
-        g2d.dispose();
-        return new ImageIcon(image);
-    }
-
-    private ImageIcon createDefaultIcon(int width, int height) {
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = image.createGraphics();
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.setColor(new Color(255, 255, 255, 100));
-        g2d.fillRoundRect(2, 2, width - 4, height - 4, 4, 4);
-        g2d.setColor(new Color(255, 255, 255, 150));
-        g2d.drawRoundRect(2, 2, width - 4, height - 4, 4, 4);
-        g2d.dispose();
-        return new ImageIcon(image);
-    }
-
     private JButton createNavButton(String text, String iconPath, java.awt.event.ActionListener action) {
         JButton button = new JButton(text) {
             @Override
             protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g;
-                if (getModel().isRollover()) {
-                    g2d.setColor(new Color(255, 255, 255, 38));
-                    g2d.fillRect(0, 0, getWidth(), getHeight());
-                }
-                if (getModel().isPressed()) {
-                    g2d.setColor(new Color(255, 255, 255, 51));
-                    g2d.fillRect(0, 0, getWidth(), getHeight());
-                }
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
                 if (this == activeButton) {
-                    g2d.setColor(new Color(255, 255, 255, 64));
-                    g2d.fillRect(0, 0, getWidth(), getHeight());
+                    g2d.setColor(new Color(255, 255, 255, 50));
+                    g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
                     g2d.setColor(new Color(255, 210, 0));
-                    g2d.fillRect(0, 0, 4, getHeight());
+                    g2d.fillRect(0, 0, 5, getHeight());
+                } else if (getModel().isRollover()) {
+                    g2d.setColor(new Color(255, 255, 255, 30));
+                    g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
                 }
+                g2d.dispose();
+                super.paintComponent(g);
             }
         };
-        button.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        button.setFont(new Font("Segoe UI", Font.BOLD, 15));
         button.setForeground(Color.WHITE);
         button.setContentAreaFilled(false);
-        button.setBorder(new EmptyBorder(10, 15, 10, 15));
+        button.setBorder(new EmptyBorder(12, 20, 12, 20));
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
         button.setFocusPainted(false);
-        button.setMaximumSize(new Dimension(280, 40));
-        button.setPreferredSize(new Dimension(280, 40));
-        button.setIcon(new ImageIcon(iconPath));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        JLabel tempLabel = new JLabel();
+        Utils.updateAvatarPreview(tempLabel, "src/main/Resources/images/" + iconPath);
+        if (tempLabel.getIcon() != null) {
+            button.setIcon(tempLabel.getIcon());
+        } else if (iconPath.length() <= 2 && !iconPath.contains(".")) {
+            BufferedImage image = new BufferedImage(30, 30, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2d = image.createGraphics();
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 22));
+            FontMetrics fm = g2d.getFontMetrics();
+            int x = (30 - fm.stringWidth(iconPath)) / 2;
+            int y = ((30 - fm.getHeight()) / 2) + fm.getAscent();
+            g2d.drawString(iconPath, x, y);
+            g2d.dispose();
+            button.setIcon(new ImageIcon(image));
+        }
         button.setHorizontalAlignment(SwingConstants.LEFT);
-        button.setIconTextGap(10);
+        button.setIconTextGap(15);
         if (action != null) {
             button.addActionListener(action);
         }
         return button;
-    }
-
-    private JSeparator createSeparator() {
-        JSeparator separator = new JSeparator();
-        separator.setForeground(new Color(224, 224, 224));
-        separator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
-        separator.setOpaque(false);
-        return separator;
     }
 
     private void setActiveButton(JButton button) {
@@ -342,7 +302,7 @@ public class Home extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 641, Short.MAX_VALUE)
+            .addGap(0, 496, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -354,23 +314,29 @@ public class Home extends javax.swing.JFrame {
 
     public static void main(String[] args) {
         try {
-            UIManager.setLookAndFeel("com.formdev.flatlaf.FlatLightLaf"); // Optional: modern look
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        SwingUtilities.invokeLater(() -> {
-            Home home = null;
-            try {
-                home = new Home();
-            } catch (IOException ex) {
-                Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
             }
-            home.setVisible(true);
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new Login().setVisible(true);
+            }
         });
-
-        productmanager pr = new productmanager();
-        pr.setVisible(true);
-
     }
 }
 

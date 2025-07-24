@@ -4,26 +4,7 @@
  */
 package com.appsystem.milkteamanage_system.Staff;
 
-import com.appsystem.milkteamanage_system.Utils.DBConnection;
 import com.appsystem.milkteamanage_system.Utils.Utils;
-import com.itextpdf.io.font.constants.StandardFonts;
-import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.font.PdfFontFactory;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.properties.TextAlignment;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.time.format.DateTimeFormatter;
-import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -32,23 +13,14 @@ import javax.swing.table.DefaultTableModel;
  */
 public class BillPanel extends javax.swing.JPanel {
 
-    private double discountAmount;
-    private String discountCodeName;
     private int orderID;
 
-    /**
-     * Creates new form BillPanel
-     */
-    public BillPanel() {
+    public BillPanel(int orderId, double discountAmount, String discountCodeName, double cashReceived, double change) {
         initComponents();
-    }
-
-    public BillPanel(int orderId, double discountAmount, String discountCodeName) {
-        this();
         this.orderID = orderId;
-        this.discountAmount = discountAmount;
-        this.discountCodeName = discountCodeName;
         Utils.loadBillData(orderId, this, discountAmount, discountCodeName);
+        setCustomerCash(Utils.formatCurrency(cashReceived));
+        setChange(Utils.formatCurrency(change));
     }
 
     public void setOrderID(String orderId) {
@@ -82,6 +54,15 @@ public class BillPanel extends javax.swing.JPanel {
     public void setOrderDetailTable(DefaultTableModel model) {
         OrderDetailTable.setModel(model);
     }
+    
+    public void setCustomerCash(String cash) {
+        customerCashLabel.setText(cash);
+    }
+
+    public void setChange(String change) {
+        changeLabel.setText(change);
+    }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -118,6 +99,10 @@ public class BillPanel extends javax.swing.JPanel {
         DiscountLabel = new javax.swing.JLabel();
         printIntoPDFbtn = new javax.swing.JButton();
         btnClose = new javax.swing.JButton();
+        jLabel7 = new javax.swing.JLabel();
+        customerCashLabel = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        changeLabel = new javax.swing.JLabel();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -201,6 +186,14 @@ public class BillPanel extends javax.swing.JPanel {
             }
         });
 
+        jLabel7.setText("Tiền khách đưa:");
+
+        customerCashLabel.setText("0đ");
+
+        jLabel9.setText("Tiền thối lại:");
+
+        changeLabel.setText("0đ");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -236,6 +229,12 @@ public class BillPanel extends javax.swing.JPanel {
                             .addComponent(jSeparator4, javax.swing.GroupLayout.Alignment.TRAILING))))
                 .addContainerGap())
             .addGroup(layout.createSequentialGroup()
+                .addGap(84, 84, 84)
+                .addComponent(printIntoPDFbtn)
+                .addGap(40, 40, 40)
+                .addComponent(btnClose)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(141, 141, 141)
@@ -244,23 +243,18 @@ public class BillPanel extends javax.swing.JPanel {
                         .addGap(53, 53, 53)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel5)
-                            .addComponent(jLabel8)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(61, 61, 61)
-                        .addComponent(jLabel10)))
+                            .addComponent(jLabel8)
+                            .addComponent(jLabel7)
+                            .addComponent(jLabel9)
+                            .addComponent(jLabel10))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(DiscountLabel)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(TotalPriceLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(FinalTotalPriceLabel, javax.swing.GroupLayout.Alignment.TRAILING)))
+                    .addComponent(TotalPriceLabel)
+                    .addComponent(FinalTotalPriceLabel)
+                    .addComponent(customerCashLabel)
+                    .addComponent(changeLabel))
                 .addGap(64, 64, 64))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(84, 84, 84)
-                .addComponent(printIntoPDFbtn)
-                .addGap(40, 40, 40)
-                .addComponent(btnClose)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -301,7 +295,15 @@ public class BillPanel extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel10)
                     .addComponent(FinalTotalPriceLabel))
-                .addGap(23, 23, 23)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(customerCashLabel))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel9)
+                    .addComponent(changeLabel))
+                .addGap(18, 18, 18)
                 .addComponent(jLabel12)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -331,7 +333,9 @@ public class BillPanel extends javax.swing.JPanel {
     private javax.swing.JLabel StaffNameLabel;
     private javax.swing.JLabel TotalPriceLabel;
     private javax.swing.JButton btnClose;
+    private javax.swing.JLabel changeLabel;
     private javax.swing.JLabel createdTImeOrderLabel;
+    private javax.swing.JLabel customerCashLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel12;
@@ -340,7 +344,9 @@ public class BillPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSeparator jSeparator1;
