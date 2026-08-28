@@ -12,6 +12,7 @@ import com.appsystem.milkteamanage_system.ProductManager.productmanager;
 import com.appsystem.milkteamanage_system.Statistic.StatisticManager;
 import com.appsystem.milkteamanage_system.UserInfomation.UserInfomationPage;
 import com.appsystem.milkteamanage_system.Utils.Utils;
+import com.appsystem.milkteamanage_system.AdminPage.Chatbot;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
@@ -38,6 +39,7 @@ public class Home extends javax.swing.JFrame {
     private JButton userInfomationButton;
     private JButton optionsButton;
     private JButton logoutButton;
+    private JButton chatbotButton;
     private String staffName;
     private int staffID;
 
@@ -143,6 +145,12 @@ public class Home extends javax.swing.JFrame {
             setActiveButton(statsButton);
         });
         mainMenu.add(statsButton);
+        
+           chatbotButton = createNavButton("AI Chatbot", "🤖", e -> {
+            showChatbotPanel();
+            setActiveButton(chatbotButton);
+        });
+        mainMenu.add(chatbotButton);
 
         JPanel additionalMenu = new JPanel();
         additionalMenu.setLayout(new BoxLayout(additionalMenu, BoxLayout.Y_AXIS));
@@ -286,6 +294,15 @@ public class Home extends javax.swing.JFrame {
         mainContentPanel.revalidate();
         mainContentPanel.repaint();
     }
+    
+     private void showChatbotPanel() {
+        mainContentPanel.removeAll();
+        Chatbot chatbotPanel = new Chatbot(); // Tạo panel chatbot
+        mainContentPanel.add(chatbotPanel, BorderLayout.CENTER);
+        mainContentPanel.revalidate();
+        mainContentPanel.repaint();
+    }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
